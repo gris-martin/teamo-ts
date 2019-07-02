@@ -137,8 +137,10 @@ async function handleReactions(msg: Discord.Message, teamArgs: TeamArgs, waitTim
 
 
     // Write number of teams to the channel
-    let resultMessage = new Discord.RichEmbed()
-        .setTitle(`${teamArgs.game} ${teamArgs.getStartTimeString()}`);
+    let resultEmbed = new Discord.RichEmbed()
+        .setTitle(`**${teamArgs.game} @ ${teamArgs.getStartTimeString()}**`)
+        .setColor("PURPLE")
+        .setDescription("This message will be deleted after 15 minutes.");
 
     for (let i = 0; i < teams.length; i++) {
         const team = teams[i];

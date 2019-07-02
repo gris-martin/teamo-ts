@@ -155,12 +155,14 @@ async function handleCommand(msg: Discord.Message) {
 
     // !help
     if (command === "help") {
-        msg.channel.send(
-            " \n\n" +
-            "**Team creator usage:** \n" +
-            "!createTeam <number of players> <time to start (hh:mm)> <game>\n" +
-            "Example: !createTeam 5 20:00 LoL"
-        )
+        let helpEmbed = new Discord.RichEmbed()
+            .setTitle("**Usage**")
+            .setDescription("!createTeam <number of players> <time to start (hh:mm)> <game>")
+            .addField("Examples", "!createTeam 5 20:00 League of Legends\n" +
+                                  "!createTeam 6 14:26 OW")
+            .setColor("PURPLE");
+        (await msg.channel.send(helpEmbed) as Discord.Message).delete(20000);
+        msg.delete();
     }
 
     // !createTeam

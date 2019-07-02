@@ -47,9 +47,9 @@ function extractMembers(reactions: Discord.Collection<string, Discord.MessageRea
         if (i < 0) return;
         i++; // Array indexing starts at 0, but lowest number emoji is 1
         reaction.users.forEach(user => {
-            // if (user !== client.user) {
-            members.push(new Member(user, i));
-            // }
+            if (user !== client.user) {
+                members.push(new Member(user, i));
+            }
         });
     });
     members.sort((a, b) => b.nPlayers - a.nPlayers);

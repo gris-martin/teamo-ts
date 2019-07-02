@@ -145,7 +145,7 @@ async function handleReactions(msg: Discord.Message, teamArgs: TeamArgs, waitTim
         resultEmbed = resultEmbed.addField(`${team.name} (${team.getNumPlayers()} players)`, team.getMembersString());
     }
 
-    msg.channel.send(resultMessage);
+    (await msg.channel.send(resultEmbed) as Discord.Message).delete(15 * 60 * 10000);
 }
 
 // Handle commands

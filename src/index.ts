@@ -66,11 +66,6 @@ function extractMembers(reactions: Discord.Collection<string, Discord.MessageRea
 //      Currently the function only allows a single emoji from each user, but this might change.
 let createFilter = (maxPlayers: number) => {
     let filter = (reaction: Discord.MessageReaction, user: Discord.User) => {
-        // // Filter out messages sent by the bot
-        if (user.id == client.user.id)
-            // return false;
-            return true;
-
         // If the user has already reacted with an emoji, remove the old one
         let allowedEmojis = numberEmojis.slice(0, maxPlayers);
         if (allowedEmojis.includes(reaction.emoji.name)) {

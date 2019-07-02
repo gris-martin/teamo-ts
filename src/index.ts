@@ -140,7 +140,6 @@ async function handleReactions(msg: Discord.Message, teamArgs: TeamArgs, waitTim
 
 
     // Write number of teams to the channel
-    // let i = 1;
     let resultMessage = new Discord.RichEmbed()
         .setTitle(`${teamArgs.game} ${teamArgs.getStartTimeString()}`);
 
@@ -150,14 +149,6 @@ async function handleReactions(msg: Discord.Message, teamArgs: TeamArgs, waitTim
     }
 
     msg.channel.send(resultMessage);
-    // teams.forEach(team => {
-    //     let memberString = "";
-    //     team.members.forEach(member => {
-    //         memberString += `  ${member.user.username} (${member.nPlayers})\n`;
-    //     })
-    //     msg.channel.send(`Members of team ${i} (${team.getNumPlayers()}):\n${memberString}`);
-    //     i++;
-    // });
 }
 
 // Handle commands

@@ -162,16 +162,16 @@ async function handleCommand(msg: Discord.Message) {
     if (command === "help") {
         let helpEmbed = new Discord.RichEmbed()
             .setTitle("**Usage**")
-            .setDescription("!createTeam <number of players> <time to start (hh:mm)> <game>")
-            .addField("Examples", "!createTeam 5 20:00 League of Legends\n" +
-                                  "!createTeam 6 14:26 OW")
+            .setDescription("!play <number of players> <time to start (hh:mm)> <game>")
+            .addField("Examples", "!play 5 20:00 League of Legends\n" +
+                                  "!play 6 14:26 OW")
             .setColor("PURPLE");
         (await msg.channel.send(helpEmbed) as Discord.Message).delete(20000);
         msg.delete();
     }
 
     // !createTeam
-    if (command === "createTeam") {
+    if (command === "play") {
         const teamArgs = new TeamArgs(args);
         let teamMsg = (await msg.channel.send(teamArgs.getMessage())) as Discord.Message;
 

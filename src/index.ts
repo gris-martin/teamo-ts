@@ -84,7 +84,7 @@ let createFilter = (maxPlayers: number) => {
 }
 
 // Wait for, and then count, the reactions of a message
-async function handleReactions(msg: Discord.Message, teamArgs: TeamArgs, waitTime: number) {
+async function handleReactions(msg: Discord.Message, teamArgs: TeamArgs) {
 
     // Await the timeout
     const results = await msg.awaitReactions(createFilter(teamArgs.maxPlayers), { time: teamArgs.getWaitTimeMs() }).catch(console.error);
@@ -148,6 +148,9 @@ async function handleReactions(msg: Discord.Message, teamArgs: TeamArgs, waitTim
     }
 
     (await msg.channel.send(resultEmbed) as Discord.Message).delete(15 * 60 * 10000);
+    return new Promise((resolve, _reject) => {
+        resolve();
+    })
 }
 
 // Handle commands
@@ -174,11 +177,13 @@ async function handleCommand(msg: Discord.Message) {
             `Playing ${teamArgs.game} at ${teamArgs.getStartTimeString()} (${teamArgs.getWaitTimeString()}) with teams of ${teamArgs.maxPlayers}. `
         )) as Discord.Message;
 
-        handleReactions(teamMsg, teamArgs, 10000).catch(console.error);
+        handleReactions(teamMsg, teamArgs).then(() => teamMsg.delete(10000)).catch(console.error);
 
         for (let i = 0; i < teamArgs.maxPlayers - 1; i++) {
             await teamMsg.react(numberEmojis[i]);
         }
+        msg.delete();
+    }
 
     // !getName
     if (command === "getName") {

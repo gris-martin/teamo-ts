@@ -173,9 +173,7 @@ async function handleCommand(msg: Discord.Message) {
     // !createTeam
     if (command === "createTeam") {
         const teamArgs = new TeamArgs(args);
-        let teamMsg = (await msg.channel.send(
-            `Playing ${teamArgs.game} at ${teamArgs.getStartTimeString()} (${teamArgs.getWaitTimeString()}) with teams of ${teamArgs.maxPlayers}. `
-        )) as Discord.Message;
+        let teamMsg = (await msg.channel.send(teamArgs.getMessage())) as Discord.Message;
 
         handleReactions(teamMsg, teamArgs).then(() => teamMsg.delete(10000)).catch(console.error);
 

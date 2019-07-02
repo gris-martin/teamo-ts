@@ -1,3 +1,5 @@
+import * as Discord from 'discord.js';
+
 const secToMs = 1000;
 const minToMs = secToMs * 60;
 const hourToMs = minToMs * 60;
@@ -19,9 +21,12 @@ export class TeamArgs {
         this.date.setSeconds(0);
     }
 
-    getStartTimeString() {
+    getStartTimeString(displayDay: boolean = false) {
         let timeArray = this.date.toTimeString().split(" ")[0].split(":");
-        return `${timeArray[0]}:${timeArray[1]}`;
+        let timeString = `${timeArray[0]}:${timeArray[1]}`;
+        if (displayDay)
+            timeString += this.isTomorrow() ? " tomorrow" : " today";
+        return timeString
     }
     // getStartTime = () => this.date.toTimeString().split(" ")[0];
 
@@ -41,5 +46,16 @@ export class TeamArgs {
     // Return string of the form '[hh] h [mm] min'
     getWaitTimeString = () => `${Math.floor(this.getWaitTimeH())} h ${Math.floor(this.getWaitTimeMin())} min`;
 
-    isTomorrow = () => this.getWaitTimeMs() - 60 * 60 * 24
+    // Return true if the event is tomorrow
+    isTomorrow = () => (this.getWaitTimeMs() - dayToMs) < 0;
+
+    getMessage = () => {
+        let msg = new Discord.RichEmbed()
+            .setTitle(`Time for **${this.game}**!!`)
+            .setColor("PURPLE")
+            .addField("Time", this.getStartTimeString())
+            .addField("Time left", this.getWaitTimeString())
+            .addField("Team size", this.maxPlayers);
+        return msg;
+    }
 }

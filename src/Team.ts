@@ -35,7 +35,7 @@ export class Team {
     getMembersString() {
         let memberString = "";
         for (const member of this.members) {
-            memberString += `${member.user.username} (${member.nPlayers})\n`;
+            memberString += `${member.user} (${member.nPlayers})\n`;
         }
         return memberString;
     }

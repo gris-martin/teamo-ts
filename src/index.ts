@@ -87,7 +87,7 @@ let createFilter = (maxPlayers: number) => {
 async function handleReactions(msg: Discord.Message, teamArgs: TeamArgs, waitTime: number) {
 
     // Await the timeout
-    const results = await msg.awaitReactions(createFilter(teamArgs.maxPlayers), { time: waitTime }).catch(console.error);
+    const results = await msg.awaitReactions(createFilter(teamArgs.maxPlayers), { time: teamArgs.getWaitTimeMs() }).catch(console.error);
     if (results === undefined)
         return;
 

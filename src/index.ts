@@ -3,6 +3,8 @@ import { config } from './config';
 import { Member } from './Member';
 import { Team, TeamArray } from './Team';
 import { TeamArgs } from './TeamArgs';
+import { generateName } from './NameGenerator';
+
 const client = new Discord.Client();
 
 client.on('ready', () => {
@@ -145,7 +147,7 @@ async function handleReactions(msg: Discord.Message, teamArgs: TeamArgs, waitTim
 
     for (let i = 0; i < teams.length; i++) {
         const team = teams[i];
-        resultMessage = resultMessage.addField(`Team ${i+1} (${team.getNumPlayers()} players)`, team.getMembersString());
+        resultEmbed = resultEmbed.addField(`${team.name} (${team.getNumPlayers()} players)`, team.getMembersString());
     }
 
     msg.channel.send(resultMessage);
@@ -178,6 +180,11 @@ async function handleCommand(msg: Discord.Message) {
         for (let i = 0; i < teamArgs.maxPlayers - 1; i++) {
             await teamMsg.react(numberEmojis[i]);
         }
+
+    // !getName
+    if (command === "getName") {
+        msg.channel.send(generateName());
+        msg.delete();
     }
 }
 

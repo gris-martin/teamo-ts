@@ -1,11 +1,14 @@
 import * as Discord from 'discord.js';
 import { Member } from './Member';
+import { generateName } from './NameGenerator';
 
 export class Team {
     members: Array<Member>;
+    name: string;
     constructor(member: Member) {
         this.members = new Array<Member>();
         this.members.push(member);
+        this.name = generateName();
     }
 
     //TODO: This is ugly, should not create a client here

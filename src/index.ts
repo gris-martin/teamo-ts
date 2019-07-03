@@ -157,6 +157,7 @@ async function handleReactions(msg: Discord.Message, teamArgs: TeamArgs) {
 async function handleCommand(msg: Discord.Message) {
     let command = msg.content.split(" ")[0].replace(config.prefix, "");
     let args = msg.content.split(" ").slice(1);
+    let commandHandled = false;
 
     // !help
     if (command === "help") {
@@ -166,8 +167,9 @@ async function handleCommand(msg: Discord.Message) {
             .addField("Examples", "!play 5 20:00 League of Legends\n" +
                                   "!play 6 14:26 OW")
             .setColor("PURPLE");
-        (await msg.channel.send(helpEmbed) as Discord.Message).delete(20000);
-        msg.delete();
+        (await msg.channel.send(helpEmbed) as Discord.Message)
+            .delete(20000);
+        commandHandled = true;
     }
 
     // !createTeam
@@ -175,19 +177,24 @@ async function handleCommand(msg: Discord.Message) {
         const teamArgs = new TeamArgs(args);
         let teamMsg = (await msg.channel.send(teamArgs.getMessage())) as Discord.Message;
 
-        handleReactions(teamMsg, teamArgs).then(() => teamMsg.delete(10000)).catch(console.error);
+        handleReactions(teamMsg, teamArgs)
+            .then(() => teamMsg.delete(10000))
+            .catch(console.error);
 
         for (let i = 0; i < teamArgs.maxPlayers - 1; i++) {
             await teamMsg.react(numberEmojis[i]);
         }
-        msg.delete();
+        commandHandled = true;
     }
 
     // !getName
     if (command === "getName") {
         msg.channel.send(generateName());
-        msg.delete();
+        commandHandled = true;
     }
+
+    if (commandHandled)
+        msg.delete(5000).catch(console.error);
 }
 
 client.login(config.token);

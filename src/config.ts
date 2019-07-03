@@ -1,5 +1,5 @@
 export const config = {
-    "token": "TOKEN HERE!!!!",
+    "token": `${process.env.BOT_TOKEN}`,
     "prefix": "!",
     "commands": [
         "testCommand",

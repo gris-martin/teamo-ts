@@ -1,0 +1,12 @@
+language: node_js
+node_js:
+- '12'
+install:
+- npm install -g typescript
+before_deploy:
+- 'tsc: build - tsconfig.json'
+deploy:
+  provider: heroku
+  app: nooblovers-teamo
+  api_key:
+    secure: IY3KpeMQIcU7OzhcIp2tlQnWW1f/8Kby3L2QTiSGRtoMa1ZjpPwHx4U/DGcDlYjHDLt1ilePY5kZL8robWI3q4YkwFLR59GLD3jQFoUx3rxpLwnXrOLazduhXuALAx9FywIjEpPnzycYL4IgKiHK/cBvM0+E7GZFssxLgxH3ii1tBt09mGGMeMuX5oWLQ0Srzp2dDhCEsbRQkpyj3t5Mb3DOknzmrlvuMcCXC314OtPt2D+QOmqqVskGmp37TNvETP/sip7ZEIW55+GS8XTYW0ye1UB3+U4LikJkY0GvUDDCJ10o3Mtc9CgZdyfJfw494LZ/+C0225uZvp7DaMXWSV5V6EJ28/kzgx+MmWAO8S8Hp5Q9rCcen3TgomUULk8W8iCo6WkD+07dSy+V9bF48OGvnNr8jGIzHU0qYfgldu65odJqczD+ecTKdDt74R8IP95uEvi0iZlhL5ClrWA9vU9fV1g6mT32NvCu7olvGEnIxm1l7NxR8lb8hlJPaARg+3VDYOhbGQoZvT6pByooQDr3Uz3C00noLPlxdVHXWD01L5jOhJY0dtJxzk6Vwlit3dVbPTxmnDCydndcAHnZMnp8G/8kh5mxur0AvRtOwIx/6MDXjdzFxK4RGsr/uxD1fT16yueTdW0bjwhTdFspPV/vmrs6YN+vFm2YukWyHfA=

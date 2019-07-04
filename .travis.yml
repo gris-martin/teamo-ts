@@ -3,6 +3,7 @@ node_js:
 - '12'
 install:
 - npm install -g typescript
+- npm install
 - tsc
 script: skip
 deploy:

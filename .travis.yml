@@ -3,9 +3,9 @@ node_js:
 - '12'
 install:
 - npm install -g typescript
+- 'tsc: build - tsconfig.json'
 script: skip
 before_deploy:
-- 'tsc: build - tsconfig.json'
 deploy:
   provider: heroku
   app: nooblovers-teamo

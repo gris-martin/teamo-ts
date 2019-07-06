@@ -162,7 +162,7 @@ async function handleCommand(msg: Discord.Message) {
     // !help
     if (command === "help") {
         let helpEmbed = new Discord.RichEmbed()
-            .setTitle("**Usage [TEST!!!!!!]**")
+            .setTitle("**Usage**")
             .setDescription("!play <number of players> <time to start (hh:mm)> <game>")
             .addField("Examples", "!play 5 20:00 League of Legends\n" +
                                   "!play 6 14:26 OW")

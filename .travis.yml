@@ -4,7 +4,7 @@ node_js:
 install:
 - npm install -g typescript
 - npm install
-- tsc
+- npm build
 script: skip
 deploy:
   provider: heroku

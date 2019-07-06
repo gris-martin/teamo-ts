@@ -33,6 +33,8 @@ let numberEmojis = [
     '9⃣'
 ]
 
+let cancelEmoji: string = "❌";
+
 
 // Extract Members from a list of MessageReactions.
 // Inputs
@@ -66,12 +68,16 @@ function extractMembers(reactions: Discord.Collection<string, Discord.MessageRea
 //      Currently the function only allows a single emoji from each user, but this might change.
 let createFilter = (maxPlayers: number) => {
     let filter = (reaction: Discord.MessageReaction, user: Discord.User) => {
+        if (user.id === client.user.id)
+            return false;
+
         // If the user has already reacted with an emoji, remove the old one
         let allowedEmojis = numberEmojis.slice(0, maxPlayers);
+        allowedEmojis.push(cancelEmoji);
         if (allowedEmojis.includes(reaction.emoji.name)) {
-            let oldReactions = reaction.message.reactions.filter(
-                r => (r.users.has(user.id) && r !== reaction)
-            );
+            // let oldReactions = reaction.message.reactions.filter(
+            //     r => (r.users.has(user.id) && r !== reaction)
+            // );
             // oldReactions.forEach(r => { r.remove(user); });
             return true;
         }
@@ -84,73 +90,79 @@ let createFilter = (maxPlayers: number) => {
 }
 
 // Wait for, and then count, the reactions of a message
-async function handleReactions(msg: Discord.Message, teamArgs: TeamArgs) {
+function handleReactions(msg: Discord.Message, teamArgs: TeamArgs) {
 
     // Await the timeout
-    const results = await msg.awaitReactions(createFilter(teamArgs.maxPlayers), { time: teamArgs.getWaitTimeMs() }).catch(console.error);
-    if (results === undefined)
-        return;
+    const filter = createFilter(teamArgs.maxPlayers);
+    const collector = msg.createReactionCollector(filter, { time: teamArgs.getWaitTimeMs() });
 
-    let members = extractMembers(results);
-    let nMembers =  members.length;
-
-    // Create initial teams from Members with more than half the number of maxPlayers
-    // teams: Array of all the teams. This array will be expanded later if needed
-    let teams = new TeamArray();
-    members.forEach(member => {
-        if (member.nPlayers > Math.floor(teamArgs.maxPlayers / 2.0)) {
-            let team = new Team(member);
-            teams.push(team);
-            members.splice(members.indexOf(member), 1);
+    collector.on('collect', reaction => {
+        if (reaction.emoji.name == cancelEmoji) {
+            msg.delete();
         }
     });
 
-    // Bin packing problem
-    // 1. Try to place all remaining members in one of the teams already created
-    //      1.1 Add the highest member to the team with lowest number of members
-    // 2. If there are not enough teams, create a new team with the user with the highest number of members
-    // 3. Repeat 1-2 until n members left
-    while (true) {
-        let tmpTeams = TeamArray.copy(teams);
-        for (const member of members) {
-            tmpTeams.sort((a, b) => a.getNumPlayers() - b.getNumPlayers());  // Sort the teams to make the smallest team be filled first
-            for (let team of tmpTeams) {
-                if (team.getNumPlayers() + member.nPlayers > teamArgs.maxPlayers) {
-                    continue;
-                }
-                else {
-                    team.members.push(member);
-                    break;
+    collector.on('end', results => {
+        let members = extractMembers(results);
+        let nMembers = members.length;
+
+        // Create initial teams from Members with more than half the number of maxPlayers
+        // teams: Array of all the teams. This array will be expanded later if needed
+        let teams = new TeamArray();
+        members.forEach(member => {
+            if (member.nPlayers > Math.floor(teamArgs.maxPlayers / 2.0)) {
+                let team = new Team(member);
+                teams.push(team);
+                members.splice(members.indexOf(member), 1);
+            }
+        });
+
+        // Bin packing problem
+        // 1. Try to place all remaining members in one of the teams already created
+        //      1.1 Add the highest member to the team with lowest number of members
+        // 2. If there are not enough teams, create a new team with the user with the highest number of members
+        // 3. Repeat 1-2 until n members left
+        while (true) {
+            let tmpTeams = TeamArray.copy(teams);
+            for (const member of members) {
+                tmpTeams.sort((a, b) => a.getNumPlayers() - b.getNumPlayers());  // Sort the teams to make the smallest team be filled first
+                for (let team of tmpTeams) {
+                    if (team.getNumPlayers() + member.nPlayers > teamArgs.maxPlayers) {
+                        continue;
+                    }
+                    else {
+                        team.members.push(member);
+                        break;
+                    }
                 }
             }
+            if (tmpTeams.getNumMembers() === nMembers) {
+                teams = tmpTeams;
+                break;
+            }
+            else {
+                let newTeamMember = members.splice(0, 1)[0];
+                let newTeam = new Team(newTeamMember);
+                teams.push(newTeam);
+            }
         }
-        if (tmpTeams.getNumMembers() === nMembers) {
-            teams = tmpTeams;
-            break;
+
+        // Write message with teams to the channel
+        let resultEmbed = new Discord.RichEmbed()
+            .setTitle(`**${teamArgs.game} @ ${teamArgs.getStartTimeString()}**`)
+            .setColor("PURPLE")
+            .setDescription("This message will be deleted after 15 minutes.");
+        for (let i = 0; i < teams.length; i++) {
+            const team = teams[i];
+            resultEmbed = resultEmbed.addField(`${team.name} (${team.getNumPlayers()} players)`, team.getMembersString());
         }
-        else {
-            let newTeamMember = members.splice(0, 1)[0];
-            let newTeam = new Team(newTeamMember);
-            teams.push(newTeam);
-        }
-    }
+        msg.channel.send(resultEmbed)
+            .then(resultMsg => (resultMsg as Discord.Message).delete(15 * 60 * 10000))
+            .catch(console.error);
 
-
-    // Write number of teams to the channel
-    let resultEmbed = new Discord.RichEmbed()
-        .setTitle(`**${teamArgs.game} @ ${teamArgs.getStartTimeString()}**`)
-        .setColor("PURPLE")
-        .setDescription("This message will be deleted after 15 minutes.");
-
-    for (let i = 0; i < teams.length; i++) {
-        const team = teams[i];
-        resultEmbed = resultEmbed.addField(`${team.name} (${team.getNumPlayers()} players)`, team.getMembersString());
-    }
-
-    (await msg.channel.send(resultEmbed) as Discord.Message).delete(15 * 60 * 10000);
-    return new Promise((resolve, _reject) => {
-        resolve();
-    })
+        // Delete registration message after 10 seconds
+        msg.delete(10000).catch(console.error);
+    });
 }
 
 // Handle commands
@@ -178,12 +190,23 @@ async function handleCommand(msg: Discord.Message) {
         let teamMsg = (await msg.channel.send(teamArgs.getMessage())) as Discord.Message;
 
         handleReactions(teamMsg, teamArgs)
-            .then(() => teamMsg.delete(10000))
-            .catch(console.error);
 
+        // Update message every 30 seconds
+        const intervalId = setInterval(updateMessage, 1000 * 20);
+        function updateMessage() {
+            teamMsg.edit(teamArgs.getMessage()).catch(err => {
+                if (err instanceof Discord.DiscordAPIError)
+                    clearInterval(intervalId);
+                else
+                    console.error(err);
+            });
+        }
+
+        // Place reacts
         for (let i = 0; i < teamArgs.maxPlayers - 1; i++) {
             await teamMsg.react(numberEmojis[i]);
         }
+        await teamMsg.react(cancelEmoji);
         commandHandled = true;
     }
 
@@ -195,6 +218,11 @@ async function handleCommand(msg: Discord.Message) {
 
     if (commandHandled)
         msg.delete(5000).catch(console.error);
+    else {
+        let invalidMsg = await msg.channel.send(`Invalid command: "${command}"`) as Discord.Message;
+        invalidMsg.delete(10000).catch(console.error);
+        msg.delete(10000).catch(console.error);
+    }
 }
 
 client.login(config.token);

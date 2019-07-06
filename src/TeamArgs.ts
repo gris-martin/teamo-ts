@@ -1,4 +1,5 @@
 import * as Discord from 'discord.js';
+import getLanguageResource from './LanguageResource';
 
 const secToMs = 1000;
 const minToMs = secToMs * 60;
@@ -27,13 +28,20 @@ export class TeamArgs {
     }
 
     getStartTimeString(displayDay: boolean = false) {
-        let timeArray = this.date.toTimeString().split(" ")[0].split(":");
-        let timeString = `${timeArray[0]}:${timeArray[1]}`;
+        let timeString = TeamArgs.getTimeString(this.date);
         if (displayDay)
             timeString += this.isTomorrow() ? " tomorrow" : " today";
         return timeString
     }
-    // getStartTime = () => this.date.toTimeString().split(" ")[0];
+
+    static getCurrentTimeString() {
+        return TeamArgs.getTimeString(new Date());
+    }
+
+    static getTimeString(date: Date) {
+        let timeArray = date.toTimeString().split(" ")[0].split(":");
+        return `${timeArray[0]}:${timeArray[1]}`;
+    }
 
     getWaitTimeMs() {
         let waitTime = this.date.valueOf() - Date.now();
@@ -56,11 +64,12 @@ export class TeamArgs {
 
     getMessage = () => {
         let msg = new Discord.RichEmbed()
-            .setTitle(`Time for **${this.game}**!!`)
+            .setTitle(`${getLanguageResource("LOOKING_TIME_FOR")} **${this.game}**!!`)
+            .setDescription(`**Start: ${this.getStartTimeString()}** - ${getLanguageResource("LOOKING_REGISTER")}`)
             .setColor("PURPLE")
-            .addField("Time", this.getStartTimeString())
-            .addField("Time left", this.getWaitTimeString())
-            .addField("Team size", this.maxPlayers);
+            .addField(getLanguageResource("LOOKING_TIME_LEFT"), this.getWaitTimeString())
+            .addField(getLanguageResource("LOOKING_TEAM_SIZE"), this.maxPlayers)
+            .setFooter(`${getLanguageResource("LOOKING_UPDATE")}: ${TeamArgs.getCurrentTimeString()}`);
         return msg;
     }
 }

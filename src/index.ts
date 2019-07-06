@@ -4,6 +4,7 @@ import { Member } from './Member';
 import { Team, TeamArray } from './Team';
 import { TeamArgs } from './TeamArgs';
 import { generateName } from './NameGenerator';
+import getLanguageResource from './LanguageResource';
 
 const client = new Discord.Client();
 
@@ -157,11 +158,13 @@ async function handleCommand(msg: Discord.Message) {
     // !help
     if (command === "help") {
         let helpEmbed = new Discord.RichEmbed()
-            .setTitle("**Usage**")
-            .setDescription("!play <number of players> <time to start (hh:mm)> <game>")
-            .addField("Examples", "!play 5 20:00 League of Legends\n" +
+            .setColor("PURPLE")
+            .setTitle(`**${getLanguageResource("HELP_TITLE")}**`)
+            .setDescription(getLanguageResource("HELP_DESCRIPTION"))
+            .addField(getLanguageResource("HELP_EXAMPLE_TITLE"),
+                "!play 5 20:00 League of Legends\n" +
                 "!play 6 14:26 OW")
-            .setColor("PURPLE");
+            .setFooter(getLanguageResource("HELP_FOOTER"));
         (await msg.channel.send(helpEmbed) as Discord.Message)
             .delete(20000);
         commandHandled = true;
@@ -191,10 +194,10 @@ async function handleCommand(msg: Discord.Message) {
             let resultEmbed = new Discord.RichEmbed()
                 .setTitle(`**${teamArgs.game} @ ${teamArgs.getStartTimeString()}**`)
                 .setColor("PURPLE")
-                .setDescription("This message will be deleted after 15 minutes.");
+                .setFooter(getLanguageResource("RESULT_REMOVE_MESSAGE"));
             for (let i = 0; i < teams.length; i++) {
                 const team = teams[i];
-                resultEmbed = resultEmbed.addField(`${team.name} (${team.getNumPlayers()} players)`, team.getMembersString());
+                resultEmbed = resultEmbed.addField(`${team.name} (${team.getNumPlayers()} ${getLanguageResource("PLAYERS")})`, team.getMembersString());
             }
             lookingMsg.channel.send(resultEmbed)
                 .then(foundMsg => (foundMsg as Discord.Message).delete(15 * 60 * 10000))
@@ -204,8 +207,8 @@ async function handleCommand(msg: Discord.Message) {
             lookingMsg.delete(10000).catch(console.error);
         });
 
-        // Update message every 30 seconds
-        const intervalId = setInterval(updateMessage, 1000 * 20);
+        // Update message every 15 seconds
+        const intervalId = setInterval(updateMessage, 1000 * 15);
         function updateMessage() {
             lookingMsg.edit(teamArgs.getMessage()).catch(err => {
                 if (err instanceof Discord.DiscordAPIError)

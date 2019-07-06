@@ -7,6 +7,8 @@ install:
 script: skip
 deploy:
   provider: heroku
-  app: nooblovers-teamo
+  app:
+    deploy: nooblovers-teamo
+    master: nooblovers-teamo-master
   api_key:
     secure: S3fFD/lj+BZIykTdiY+9Mm0afJ1uV0pHl3KQx/Y3CuqC7n/IMap9+BN2Kv349+iJTUAnQQc8C6Eq95q0JCK9sm7Mzq6jdX9zqGTOqP6QtjjiFnvISF/LZV3pkflBWUyyNnWZtkbdnC+NpBhySYNTdtVKtjUDQTKPRBbux20tqFePxnScpCKy1ws62suYm7fhUhzxl/8VzhkR2j2m/o71LH0IInY1bGsMALZawcv2yMAJUay4RtmAJSqt3j+RXj4FAecAsGoUiHuZMl8XL0U253PCJCai+6vNdbD7zrv/42Z86xU/3plXxF/DN42NgM0NO7UtKb4mXWa/dPLY0cjPcuA4eZdxrkLnMERS8YGwt2gn8jTa/96QWC9cvixWmhr/TNKMZ9FHnlSsvprAy4MN2ZnPFx2cyw8b5XH0/20AU+Ga2IjLT6pc+RG80rnjbrPT1Lou68mViZMXp2aPZJM+1Khe94ww3Ua8wCP471olSx67b4Ni9Z4KRjxwBUTTUOkAB0W7TEgFGReAqowOScxxM8gWAknVmDHfXdNu8iFD7462ks6aYqUFj6Wc3ZCvUAyxaSMC1qCFNnlfJT10Ln2qhkJQnnSUgUmfidi6y3Du8y8sxVVTtetU5O7lHedC66Il0WPrThdFxWMle1RzHrJrP49ZHveGFQB9FFz1FzGh1Wo=

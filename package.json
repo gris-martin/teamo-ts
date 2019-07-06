@@ -1,15 +1,15 @@
 {
-  "name": "teamcreator",
-  "version": "1.0.0",
-  "description": "",
+  "name": "teamo",
+  "version": "0.0.1",
+  "description": "A Discord bot for creating teams for games.",
   "main": "dst/index.js",
   "scripts": {
     "build": "tsc",
     "start": "node dst/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Martin Törnqvist",
+  "license": "MIT",
   "dependencies": {
     "@types/node": "^12.0.10",
     "discord.js": "^11.5.1"

@@ -156,12 +156,13 @@ async function handleCommand(msg: Discord.Message) {
             .setColor("PURPLE")
             .setTitle(`**${getLanguageResource("HELP_TITLE")}**`)
             .setDescription(getLanguageResource("HELP_DESCRIPTION"))
+            .addField(getLanguageResource("HELP_FORMAT_TITLE"), getLanguageResource("HELP_FORMAT_FIELD"))
             .addField(getLanguageResource("HELP_EXAMPLE_TITLE"),
                 "!play 5 20:00 League of Legends\n" +
                 "!play 6 14:26 OW")
             .setFooter(getLanguageResource("HELP_FOOTER"));
         (await msg.channel.send(helpEmbed) as Discord.Message)
-            .delete(20000);
+            .delete(60000);
         commandHandled = true;
     }
 

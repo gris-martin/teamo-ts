@@ -53,6 +53,10 @@ const LanguageObject: LanguageDict = {
     "LOOKING_UPDATE": {
         "swedish": "Uppdateras var 15:e sekund. Senast uppdaterad",
         "english": "Updated every 15th second. Last update"
+    },
+    "ARGS_PLAY_INVALID_FORMAT": {
+        "swedish": "Fel format på kommandot. Rätt format: \"!play <spelare> <hh>:<mm> <spel>\". Skriv **!help** för mer info.",
+        "english": "Invalid format. The command should be on the form: \"!play <players> <hh>:<mm> <game>\". Type **!help** for more info."
     }
 
 }

@@ -144,15 +144,10 @@ function createTeams(members: Member[], maxPlayers: number) {
     return teams;
 }
 
-// Wait for, and then count, the reactions of a message
-function handleReactions(msg: Discord.Message, teamArgs: TeamArgs) {
-
-}
-
 // Handle commands
 async function handleCommand(msg: Discord.Message) {
-    let command = msg.content.split(" ")[0].replace(config.prefix, "");
-    let args = msg.content.split(" ").slice(1);
+    const command = msg.content.split(" ")[0].replace(config.prefix, "");
+    const args = msg.content.substr(msg.content.indexOf(' ')+1);
     let commandHandled = false;
 
     // !help
@@ -172,7 +167,21 @@ async function handleCommand(msg: Discord.Message) {
 
     // !createTeam
     if (command === "play") {
-        const teamArgs = new TeamArgs(args);
+        // Validate arguments
+        const argsArray = args.match(/(\d+)\s(\d{1,2}):?(\d{2})\s(.+)/);
+        if (argsArray === null)
+        {
+            (await msg.channel.send(getLanguageResource("ARGS_PLAY_INVALID_FORMAT")) as Discord.Message)
+                .delete(10000);
+            return;
+        }
+        const maxPlayers = parseInt(argsArray[1]);
+        const hh = parseInt(argsArray[2]);
+        const mm = parseInt(argsArray[3]);
+        const game = argsArray[4];
+        const teamArgs = new TeamArgs(maxPlayers, hh, mm, game);
+
+        // Send the "looking for team" message and wait for reactions
         let lookingMsg = (await msg.channel.send(teamArgs.getMessage())) as Discord.Message;
 
         const filter = createFilter(teamArgs.maxPlayers);
@@ -232,6 +241,7 @@ async function handleCommand(msg: Discord.Message) {
         commandHandled = true;
     }
 
+    // Notify the user if the command was invalid
     if (commandHandled)
         msg.delete(5000).catch(console.error);
     else {

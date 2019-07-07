@@ -11,19 +11,12 @@ export class TeamArgs {
     maxPlayers: number;
     date: Date;
 
-    constructor(args: string[]) {
-        this.maxPlayers = parseInt(args[0]);
-        this.game = ""
-        for (const gameArg of args.slice(2)) {
-            this.game += (gameArg + " ");
-        }
-        this.game = this.game.trim();
-        // this.game = args[2];
-
-        const hhmm = args[1].split(":");
+    constructor(maxPlayers: number, hh: number, mm: number, game: string) {
+        this.maxPlayers = maxPlayers;
+        this.game = game;
         this.date = new Date();
-        this.date.setHours(parseInt(hhmm[0]));
-        this.date.setMinutes(parseInt(hhmm[1]));
+        this.date.setHours(hh);
+        this.date.setMinutes(mm);
         this.date.setSeconds(0);
     }
 

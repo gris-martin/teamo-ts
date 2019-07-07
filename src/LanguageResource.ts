@@ -1,12 +1,12 @@
 import { config } from './config';
 
 type LanguageEntry = {
-        swedish: string;
-        english: string;
+    swedish: string;
+    english: string;
 }
 
 type LanguageDict = {
-    [key:string]: LanguageEntry;
+    [key: string]: LanguageEntry;
 }
 
 const LanguageObject: LanguageDict = {

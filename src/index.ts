@@ -147,7 +147,7 @@ function createTeams(members: Member[], maxPlayers: number) {
 // Handle commands
 async function handleCommand(msg: Discord.Message) {
     const command = msg.content.split(" ")[0].replace(config.prefix, "");
-    const args = msg.content.substr(msg.content.indexOf(' ')+1);
+    const args = msg.content.substr(msg.content.indexOf(' ') + 1);
     let commandHandled = false;
 
     // !help
@@ -170,8 +170,7 @@ async function handleCommand(msg: Discord.Message) {
     if (command === "play") {
         // Validate arguments
         const argsArray = args.match(/(\d+)\s(\d{1,2}):?(\d{2})\s(.+)/);
-        if (argsArray === null)
-        {
+        if (argsArray === null) {
             (await msg.channel.send(getLanguageResource("ARGS_PLAY_INVALID_FORMAT")) as Discord.Message)
                 .delete(10000);
             return;

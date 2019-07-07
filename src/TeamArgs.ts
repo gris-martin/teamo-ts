@@ -41,8 +41,7 @@ export class TeamArgs {
 
     getWaitTimeMs() {
         let waitTime = this.date.valueOf() - Date.now();
-        if (waitTime < 0)
-        {
+        if (waitTime < 0) {
             waitTime += dayToMs;
         }
         return waitTime;
@@ -66,7 +65,7 @@ export class TeamArgs {
         for (const member of members) {
             memberString += `${member.user.username} (**${member.nPlayers}**), `
         }
-        return memberString.substring(0, memberString.length-2);
+        return memberString.substring(0, memberString.length - 2);
     }
 
     getMessage = (members: Array<Member> = new Array<Member>()) => {

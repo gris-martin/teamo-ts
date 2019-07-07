@@ -1,4 +1,6 @@
 import * as Discord from 'discord.js';
+import getLanguageResource from './LanguageResource';
+import { Member } from './Member';
 
 const secToMs = 1000;
 const minToMs = secToMs * 60;
@@ -10,35 +12,36 @@ export class TeamArgs {
     maxPlayers: number;
     date: Date;
 
-    constructor(args: string[]) {
-        this.maxPlayers = parseInt(args[0]);
-        this.game = ""
-        for (const gameArg of args.slice(2)) {
-            this.game += (gameArg + " ");
-        }
-        this.game = this.game.trim();
-        // this.game = args[2];
-
-        const hhmm = args[1].split(":");
+    constructor(maxPlayers: number, hh: number, mm: number, game: string) {
+        this.maxPlayers = maxPlayers;
+        this.game = game;
         this.date = new Date();
-        this.date.setHours(parseInt(hhmm[0]));
-        this.date.setMinutes(parseInt(hhmm[1]));
+        this.date.setHours(hh);
+        this.date.setMinutes(mm);
         this.date.setSeconds(0);
     }
 
     getStartTimeString(displayDay: boolean = false) {
-        let timeArray = this.date.toTimeString().split(" ")[0].split(":");
-        let timeString = `${timeArray[0]}:${timeArray[1]}`;
+        let timeString = TeamArgs.getTimeString(this.date);
         if (displayDay)
             timeString += this.isTomorrow() ? " tomorrow" : " today";
         return timeString
     }
-    // getStartTime = () => this.date.toTimeString().split(" ")[0];
+
+    static getCurrentTimeString(showSeconds: boolean = false) {
+        return TeamArgs.getTimeString(new Date(), showSeconds);
+    }
+
+    static getTimeString(date: Date, showSeconds: boolean = false) {
+        const timeArray = date.toTimeString().split(" ")[0].split(":");
+        let timeString = `${timeArray[0]}:${timeArray[1]}`
+        if (showSeconds) timeString += `:${timeArray[2]}`;
+        return timeString;
+    }
 
     getWaitTimeMs() {
         let waitTime = this.date.valueOf() - Date.now();
-        if (waitTime < 0)
-        {
+        if (waitTime < 0) {
             waitTime += dayToMs;
         }
         return waitTime;
@@ -54,13 +57,27 @@ export class TeamArgs {
     // Return true if the event is tomorrow
     isTomorrow = () => (this.getWaitTimeMs() - dayToMs) < 0;
 
-    getMessage = () => {
+    static getMemberString = (members: Member[]) => {
+        console.log("Members: ", members);
+        let memberString = ""
+        if (members.length === 0)
+            return getLanguageResource("LOOKING_NO_REGISTERED");
+        for (const member of members) {
+            memberString += `${member.user.username} (**${member.nPlayers}**), `
+        }
+        return memberString.substring(0, memberString.length - 2);
+    }
+
+    getMessage = (members: Array<Member> = new Array<Member>()) => {
         let msg = new Discord.RichEmbed()
-            .setTitle(`Time for **${this.game}**!!`)
+            .setTitle(`${getLanguageResource("LOOKING_TIME_FOR")} **${this.game}**!!`)
+            .setDescription(`**Start: ${this.getStartTimeString()}** - ${getLanguageResource("LOOKING_REGISTER")}`)
             .setColor("PURPLE")
-            .addField("Time", this.getStartTimeString())
-            .addField("Time left", this.getWaitTimeString())
-            .addField("Team size", this.maxPlayers);
+            .addField(getLanguageResource("LOOKING_TIME_LEFT"), this.getWaitTimeString())
+            .addField(getLanguageResource("LOOKING_TEAM_SIZE"), this.maxPlayers)
+            .addField(getLanguageResource("LOOKING_REGISTERED"), TeamArgs.getMemberString(members))
+            .setFooter(`${getLanguageResource("LOOKING_FOOTER")}: ${TeamArgs.getCurrentTimeString(true)}`);
+
         return msg;
     }
 }

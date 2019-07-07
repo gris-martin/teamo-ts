@@ -4,6 +4,7 @@ import { Member } from './Member';
 import { Team, TeamArray } from './Team';
 import { TeamArgs } from './TeamArgs';
 import { generateName } from './NameGenerator';
+import getLanguageResource from './LanguageResource';
 
 const client = new Discord.Client();
 
@@ -89,112 +90,136 @@ let createFilter = (maxPlayers: number) => {
     return filter;
 }
 
-// Wait for, and then count, the reactions of a message
-function handleReactions(msg: Discord.Message, teamArgs: TeamArgs) {
+// Create teams from an array of members
+// Inputs:
+//      members: Array of Members
+//      maxPlayers: Maximum number of players per team
+// Result:
+//      An array of teams (TeamArray), where the number of players per team is divided as
+//      evenly as possible
+function createTeams(members: Member[], maxPlayers: number) {
+    let nMembers = members.length;
 
-    // Await the timeout
-    const filter = createFilter(teamArgs.maxPlayers);
-    const collector = msg.createReactionCollector(filter, { time: teamArgs.getWaitTimeMs() });
-
-    collector.on('collect', reaction => {
-        if (reaction.emoji.name == cancelEmoji) {
-            msg.delete();
+    // Create initial teams from Members with more than half the number of maxPlayers
+    // teams: Array of all the teams. This array will be expanded later if needed
+    let teams = new TeamArray();
+    members.forEach(member => {
+        if (member.nPlayers > Math.floor(maxPlayers / 2.0)) {
+            let team = new Team(member);
+            teams.push(team);
+            members.splice(members.indexOf(member), 1);
         }
     });
 
-    collector.on('end', results => {
-        let members = extractMembers(results);
-        let nMembers = members.length;
-
-        // Create initial teams from Members with more than half the number of maxPlayers
-        // teams: Array of all the teams. This array will be expanded later if needed
-        let teams = new TeamArray();
-        members.forEach(member => {
-            if (member.nPlayers > Math.floor(teamArgs.maxPlayers / 2.0)) {
-                let team = new Team(member);
-                teams.push(team);
-                members.splice(members.indexOf(member), 1);
-            }
-        });
-
-        // Bin packing problem
-        // 1. Try to place all remaining members in one of the teams already created
-        //      1.1 Add the highest member to the team with lowest number of members
-        // 2. If there are not enough teams, create a new team with the user with the highest number of members
-        // 3. Repeat 1-2 until n members left
-        while (true) {
-            let tmpTeams = TeamArray.copy(teams);
-            for (const member of members) {
-                tmpTeams.sort((a, b) => a.getNumPlayers() - b.getNumPlayers());  // Sort the teams to make the smallest team be filled first
-                for (let team of tmpTeams) {
-                    if (team.getNumPlayers() + member.nPlayers > teamArgs.maxPlayers) {
-                        continue;
-                    }
-                    else {
-                        team.members.push(member);
-                        break;
-                    }
+    // Bin packing problem
+    // 1. Try to place all remaining members in one of the teams already created
+    //      1.1 Add the highest member to the team with lowest number of members
+    // 2. If there are not enough teams, create a new team with the user with the highest number of members
+    // 3. Repeat 1-2 until n members left
+    while (true) {
+        let tmpTeams = TeamArray.copy(teams);
+        for (const member of members) {
+            tmpTeams.sort((a, b) => a.getNumPlayers() - b.getNumPlayers());  // Sort the teams to make the smallest team be filled first
+            for (let team of tmpTeams) {
+                if (team.getNumPlayers() + member.nPlayers > maxPlayers) {
+                    continue;
+                }
+                else {
+                    team.members.push(member);
+                    break;
                 }
             }
-            if (tmpTeams.getNumMembers() === nMembers) {
-                teams = tmpTeams;
-                break;
-            }
-            else {
-                let newTeamMember = members.splice(0, 1)[0];
-                let newTeam = new Team(newTeamMember);
-                teams.push(newTeam);
-            }
         }
-
-        // Write message with teams to the channel
-        let resultEmbed = new Discord.RichEmbed()
-            .setTitle(`**${teamArgs.game} @ ${teamArgs.getStartTimeString()}**`)
-            .setColor("PURPLE")
-            .setDescription("This message will be deleted after 15 minutes.");
-        for (let i = 0; i < teams.length; i++) {
-            const team = teams[i];
-            resultEmbed = resultEmbed.addField(`${team.name} (${team.getNumPlayers()} players)`, team.getMembersString());
+        if (tmpTeams.getNumMembers() === nMembers) {
+            teams = tmpTeams;
+            break;
         }
-        msg.channel.send(resultEmbed)
-            .then(resultMsg => (resultMsg as Discord.Message).delete(15 * 60 * 10000))
-            .catch(console.error);
+        else {
+            let newTeamMember = members.splice(0, 1)[0];
+            let newTeam = new Team(newTeamMember);
+            teams.push(newTeam);
+        }
+    }
 
-        // Delete registration message after 10 seconds
-        msg.delete(10000).catch(console.error);
-    });
+    return teams;
 }
 
 // Handle commands
 async function handleCommand(msg: Discord.Message) {
-    let command = msg.content.split(" ")[0].replace(config.prefix, "");
-    let args = msg.content.split(" ").slice(1);
+    const command = msg.content.split(" ")[0].replace(config.prefix, "");
+    const args = msg.content.substr(msg.content.indexOf(' ') + 1);
     let commandHandled = false;
 
     // !help
     if (command === "help") {
         let helpEmbed = new Discord.RichEmbed()
-            .setTitle("**Usage**")
-            .setDescription("!play <number of players> <time to start (hh:mm)> <game>")
-            .addField("Examples", "!play 5 20:00 League of Legends\n" +
-                                  "!play 6 14:26 OW")
-            .setColor("PURPLE");
+            .setColor("PURPLE")
+            .setTitle(`**${getLanguageResource("HELP_TITLE")}**`)
+            .setDescription(getLanguageResource("HELP_DESCRIPTION"))
+            .addField(getLanguageResource("HELP_FORMAT_TITLE"), getLanguageResource("HELP_FORMAT_FIELD"))
+            .addField(getLanguageResource("HELP_EXAMPLE_TITLE"),
+                "!play 5 20:00 League of Legends\n" +
+                "!play 6 14:26 OW")
+            .setFooter(getLanguageResource("HELP_FOOTER"));
         (await msg.channel.send(helpEmbed) as Discord.Message)
-            .delete(20000);
+            .delete(60000);
         commandHandled = true;
     }
 
     // !createTeam
     if (command === "play") {
-        const teamArgs = new TeamArgs(args);
-        let teamMsg = (await msg.channel.send(teamArgs.getMessage())) as Discord.Message;
+        // Validate arguments
+        const argsArray = args.match(/(\d+)\s(\d{1,2}):?(\d{2})\s(.+)/);
+        if (argsArray === null) {
+            (await msg.channel.send(getLanguageResource("ARGS_PLAY_INVALID_FORMAT")) as Discord.Message)
+                .delete(10000);
+            return;
+        }
+        const maxPlayers = parseInt(argsArray[1]);
+        const hh = parseInt(argsArray[2]);
+        const mm = parseInt(argsArray[3]);
+        const game = argsArray[4];
+        const teamArgs = new TeamArgs(maxPlayers, hh, mm, game);
 
-        handleReactions(teamMsg, teamArgs)
+        // Send the "looking for team" message and wait for reactions
+        let lookingMsg = (await msg.channel.send(teamArgs.getMessage())) as Discord.Message;
 
-        // Update message every 30 seconds
-        const intervalId = setInterval(updateMessage, 1000 * 20);
+        const filter = createFilter(teamArgs.maxPlayers);
+        const collector = lookingMsg.createReactionCollector(filter, { time: teamArgs.getWaitTimeMs() });
+
+        // Delete message if ❌ is pressed
+        collector.on('collect', reaction => {
+            if (reaction.emoji.name == cancelEmoji) {
+                lookingMsg.delete();
+            }
+        });
+
+        // Create teams when the collector times out
+        collector.on('end', results => {
+            const members = extractMembers(results);
+            const teams = createTeams(members, teamArgs.maxPlayers);
+
+            // Write message with teams to the channel
+            let resultEmbed = new Discord.RichEmbed()
+                .setTitle(`**${teamArgs.game} @ ${teamArgs.getStartTimeString()}**`)
+                .setColor("PURPLE")
+                .setFooter(getLanguageResource("RESULT_REMOVE_MESSAGE"));
+            for (let i = 0; i < teams.length; i++) {
+                const team = teams[i];
+                resultEmbed = resultEmbed.addField(`${team.name} (${team.getNumPlayers()} ${getLanguageResource("PLAYERS")})`, team.getMembersString());
+            }
+            lookingMsg.channel.send(resultEmbed)
+                .then(foundMsg => (foundMsg as Discord.Message).delete(15 * 60 * 10000))
+                .catch(console.error);
+
+            // Delete registration message after 10 seconds
+            lookingMsg.delete(10000).catch(console.error);
+        });
+
+        // Update message every 15 seconds
+        const intervalId = setInterval(updateMessage, 1000 * 15);
         function updateMessage() {
-            teamMsg.edit(teamArgs.getMessage()).catch(err => {
+            lookingMsg.edit(teamArgs.getMessage(extractMembers(lookingMsg.reactions))).catch(err => {
                 if (err instanceof Discord.DiscordAPIError)
                     clearInterval(intervalId);
                 else
@@ -204,9 +229,9 @@ async function handleCommand(msg: Discord.Message) {
 
         // Place reacts
         for (let i = 0; i < teamArgs.maxPlayers - 1; i++) {
-            await teamMsg.react(numberEmojis[i]);
+            await lookingMsg.react(numberEmojis[i]);
         }
-        await teamMsg.react(cancelEmoji);
+        await lookingMsg.react(cancelEmoji);
         commandHandled = true;
     }
 
@@ -216,6 +241,7 @@ async function handleCommand(msg: Discord.Message) {
         commandHandled = true;
     }
 
+    // Notify the user if the command was invalid
     if (commandHandled)
         msg.delete(5000).catch(console.error);
     else {

@@ -1,5 +1,6 @@
 import * as Discord from 'discord.js';
 import getLanguageResource from './LanguageResource';
+import { Member } from './Member';
 
 const secToMs = 1000;
 const minToMs = secToMs * 60;
@@ -27,13 +28,15 @@ export class TeamArgs {
         return timeString
     }
 
-    static getCurrentTimeString() {
-        return TeamArgs.getTimeString(new Date());
+    static getCurrentTimeString(showSeconds: boolean = false) {
+        return TeamArgs.getTimeString(new Date(), showSeconds);
     }
 
-    static getTimeString(date: Date) {
-        let timeArray = date.toTimeString().split(" ")[0].split(":");
-        return `${timeArray[0]}:${timeArray[1]}`;
+    static getTimeString(date: Date, showSeconds: boolean = false) {
+        const timeArray = date.toTimeString().split(" ")[0].split(":");
+        let timeString = `${timeArray[0]}:${timeArray[1]}`
+        if (showSeconds) timeString += `:${timeArray[2]}`;
+        return timeString;
     }
 
     getWaitTimeMs() {
@@ -55,14 +58,27 @@ export class TeamArgs {
     // Return true if the event is tomorrow
     isTomorrow = () => (this.getWaitTimeMs() - dayToMs) < 0;
 
-    getMessage = () => {
+    static getMemberString = (members: Member[]) => {
+        console.log("Members: ", members);
+        let memberString = ""
+        if (members.length === 0)
+            return getLanguageResource("LOOKING_NO_REGISTERED");
+        for (const member of members) {
+            memberString += `${member.user.username} (**${member.nPlayers}**), `
+        }
+        return memberString.substring(0, memberString.length-2);
+    }
+
+    getMessage = (members: Array<Member> = new Array<Member>()) => {
         let msg = new Discord.RichEmbed()
             .setTitle(`${getLanguageResource("LOOKING_TIME_FOR")} **${this.game}**!!`)
             .setDescription(`**Start: ${this.getStartTimeString()}** - ${getLanguageResource("LOOKING_REGISTER")}`)
             .setColor("PURPLE")
             .addField(getLanguageResource("LOOKING_TIME_LEFT"), this.getWaitTimeString())
             .addField(getLanguageResource("LOOKING_TEAM_SIZE"), this.maxPlayers)
-            .setFooter(`${getLanguageResource("LOOKING_UPDATE")}: ${TeamArgs.getCurrentTimeString()}`);
+            .addField(getLanguageResource("LOOKING_REGISTERED"), TeamArgs.getMemberString(members))
+            .setFooter(`${getLanguageResource("LOOKING_FOOTER")}: ${TeamArgs.getCurrentTimeString(true)}`);
+
         return msg;
     }
 }

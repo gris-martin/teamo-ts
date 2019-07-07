@@ -58,15 +58,22 @@ const LanguageObject: LanguageDict = {
         "swedish": "Spelare per lag",
         "english": "Players per team"
     },
-    "LOOKING_UPDATE": {
+    "LOOKING_REGISTERED": {
+        "swedish": "Anmälda",
+        "english": "Registered"
+    },
+    "LOOKING_NO_REGISTERED": {
+        "swedish": "Inga anmälda än",
+        "english": "No one has registered yet"
+    },
+    "LOOKING_FOOTER": {
         "swedish": "Uppdateras var 15:e sekund. Senast uppdaterad",
         "english": "Updated every 15th second. Last update"
     },
     "ARGS_PLAY_INVALID_FORMAT": {
         "swedish": "Fel format på kommandot. Rätt format: \"!play <spelare> <hh>:<mm> <spel>\". Skriv **!help** för mer info.",
-        "english": "Invalid format. The command should be on the form: \"!play <players> <hh>:<mm> <game>\". Type **!help** for more info."
+        "english": "Invalid format. The command should be on the form: \"!play <players> <hh>:<mm> <game[]>\". Type **!help** for more info."
     }
-
 }
 
 export default function getLanguageResource(desc: string) {

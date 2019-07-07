@@ -220,7 +220,7 @@ async function handleCommand(msg: Discord.Message) {
         // Update message every 15 seconds
         const intervalId = setInterval(updateMessage, 1000 * 15);
         function updateMessage() {
-            lookingMsg.edit(teamArgs.getMessage()).catch(err => {
+            lookingMsg.edit(teamArgs.getMessage(extractMembers(lookingMsg.reactions))).catch(err => {
                 if (err instanceof Discord.DiscordAPIError)
                     clearInterval(intervalId);
                 else

@@ -58,7 +58,6 @@ export class TeamArgs {
     isTomorrow = () => (this.getWaitTimeMs() - dayToMs) < 0;
 
     static getMemberString = (members: Member[]) => {
-        console.log("Members: ", members);
         let memberString = ""
         if (members.length === 0)
             return getLanguageResource("LOOKING_NO_REGISTERED");

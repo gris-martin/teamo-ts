@@ -169,7 +169,7 @@ async function handleCommand(msg: Discord.Message) {
     // !createTeam
     if (command === "play") {
         // Validate arguments
-        const argsArray = args.match(/(\d+)\s(\d{1,2}):?(\d{2})\s(.+)/);
+        const argsArray = args.match(/(\d+)\s(\d{1,2})[:.]?(\d{2})\s(.+)/);
         if (argsArray === null) {
             (await msg.channel.send(getLanguageResource("ARGS_PLAY_INVALID_FORMAT")) as Discord.Message)
                 .delete(10000);

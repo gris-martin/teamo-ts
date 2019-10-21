@@ -10,6 +10,7 @@ const client = new Discord.Client();
 
 client.on('ready', () => {
     console.log("Bot online!");
+    client.user.setActivity("!help for usage info", { type: 'PLAYING' });
 });
 
 client.on('message', msg => {

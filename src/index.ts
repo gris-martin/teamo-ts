@@ -77,10 +77,10 @@ let createFilter = (maxPlayers: number) => {
         let allowedEmojis = numberEmojis.slice(0, maxPlayers);
         allowedEmojis.push(cancelEmoji);
         if (allowedEmojis.includes(reaction.emoji.name)) {
-            // let oldReactions = reaction.message.reactions.filter(
-            //     r => (r.users.has(user.id) && r !== reaction)
-            // );
-            // oldReactions.forEach(r => { r.remove(user); });
+            let oldReactions = reaction.message.reactions.filter(
+                r => (r.users.has(user.id) && r !== reaction)
+            );
+            oldReactions.forEach(r => { r.remove(user); });
             return true;
         }
 

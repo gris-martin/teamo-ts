@@ -155,7 +155,7 @@ async function handleCommand(msg: Discord.Message) {
         let helpEmbed = new Discord.RichEmbed()
             .setColor("PURPLE")
             .setTitle(`**${getLanguageResource("HELP_TITLE")}**`)
-            .setDescription(getLanguageResource("HELP_DESCRIPTION"))
+            .setDescription("\n[GitHub](https://github.com/hassanbot/teamo)\n\n" + getLanguageResource("HELP_DESCRIPTION"))
             .addField(getLanguageResource("HELP_FORMAT_TITLE"), getLanguageResource("HELP_FORMAT_FIELD"))
             .addField(getLanguageResource("HELP_EXAMPLE_TITLE"),
                 "!play 5 20:00 League of Legends\n" +

@@ -80,12 +80,12 @@ let createFilter = (maxPlayers: number) => {
             let oldReactions = reaction.message.reactions.filter(
                 r => (r.users.has(user.id) && r !== reaction)
             );
-            oldReactions.forEach(r => { r.remove(user); });
+            oldReactions.forEach(r => { r.users.remove(user); });
             return true;
         }
 
         // If the user reacted with a non-allowed emoji, remove it
-        reaction.remove(user);
+        reaction.users.remove(user);
         return false;
     }
     return filter;
@@ -146,14 +146,14 @@ function createTeams(members: Member[], maxPlayers: number) {
 }
 
 // Handle commands
-async function handleCommand(msg: Discord.Message) {
+async function handleCommand(msg: Discord.Message | Discord.PartialMessage) {
     const command = msg.content.split(" ")[0].replace(config.prefix, "");
     const args = msg.content.substr(msg.content.indexOf(' ') + 1);
     let commandHandled = false;
 
     // !help
     if (command === "help") {
-        let helpEmbed = new Discord.RichEmbed()
+        let helpEmbed = new Discord.MessageEmbed()
             .setColor("PURPLE")
             .setTitle(`**${getLanguageResource("HELP_TITLE")}**`)
             .setDescription("\n[GitHub](https://github.com/hassanbot/teamo)\n\n" + getLanguageResource("HELP_DESCRIPTION"))
@@ -163,7 +163,7 @@ async function handleCommand(msg: Discord.Message) {
                 "!play 6 14:26 OW")
             .setFooter(getLanguageResource("HELP_FOOTER"));
         (await msg.channel.send(helpEmbed) as Discord.Message)
-            .delete(60000);
+            .delete({timeout: 60000});
         commandHandled = true;
     }
 
@@ -173,7 +173,7 @@ async function handleCommand(msg: Discord.Message) {
         const argsArray = args.match(/(\d+)\s(\d{1,2})[:.]?(\d{2})\s(.+)/);
         if (argsArray === null) {
             (await msg.channel.send(getLanguageResource("ARGS_PLAY_INVALID_FORMAT")) as Discord.Message)
-                .delete(10000);
+                .delete({timeout: 10000});
             return;
         }
         const maxPlayers = parseInt(argsArray[1]);
@@ -186,7 +186,7 @@ async function handleCommand(msg: Discord.Message) {
         let lookingMsg = (await msg.channel.send(teamArgs.getMessage())) as Discord.Message;
 
         const filter = createFilter(teamArgs.maxPlayers);
-        const collector = lookingMsg.createReactionCollector(filter, { time: teamArgs.getWaitTimeMs() });
+        const collector = lookingMsg.createReactionCollector(filter, { time: teamArgs.getWaitTimeMs(), dispose: true });
 
         // Delete message if ❌ is pressed
         collector.on('collect', reaction => {
@@ -201,7 +201,7 @@ async function handleCommand(msg: Discord.Message) {
             const teams = createTeams(members, teamArgs.maxPlayers);
 
             // Write message with teams to the channel
-            let resultEmbed = new Discord.RichEmbed()
+            let resultEmbed = new Discord.MessageEmbed()
                 .setTitle(`**${teamArgs.game} @ ${teamArgs.getStartTimeString()}**`)
                 .setColor("PURPLE")
                 .setFooter(getLanguageResource("RESULT_REMOVE_MESSAGE"));
@@ -210,11 +210,11 @@ async function handleCommand(msg: Discord.Message) {
                 resultEmbed = resultEmbed.addField(`${team.name} (${team.getNumPlayers()} ${getLanguageResource("PLAYERS")})`, team.getMembersString());
             }
             lookingMsg.channel.send(resultEmbed)
-                .then(foundMsg => (foundMsg as Discord.Message).delete(15 * 60 * 10000))
+                .then(foundMsg => (foundMsg as Discord.Message).delete({timeout: 15 * 60 * 10000}))
                 .catch(console.error);
 
             // Delete registration message after 10 seconds
-            lookingMsg.delete(10000).catch(console.error);
+            lookingMsg.delete({timeout: 10000}).catch(console.error);
         });
 
         // Update message every 15 seconds
@@ -244,11 +244,11 @@ async function handleCommand(msg: Discord.Message) {
 
     // Notify the user if the command was invalid
     if (commandHandled)
-        msg.delete(5000).catch(console.error);
+        msg.delete({timeout: 5000}).catch(console.error);
     else {
         let invalidMsg = await msg.channel.send(`Invalid command: "${command}"`) as Discord.Message;
-        invalidMsg.delete(10000).catch(console.error);
-        msg.delete(10000).catch(console.error);
+        invalidMsg.delete({timeout: 10000}).catch(console.error);
+        msg.delete({timeout: 10000}).catch(console.error);
     }
 }
 

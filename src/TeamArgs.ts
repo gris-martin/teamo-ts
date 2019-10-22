@@ -68,7 +68,7 @@ export class TeamArgs {
     }
 
     getMessage = (members: Array<Member> = new Array<Member>()) => {
-        let msg = new Discord.RichEmbed()
+        let msg = new Discord.MessageEmbed()
             .setTitle(`${getLanguageResource("LOOKING_TIME_FOR")} **${this.game}**!!`)
             .setDescription(`**Start: ${this.getStartTimeString()}** - ${getLanguageResource("LOOKING_REGISTER")}`)
             .setColor("PURPLE")

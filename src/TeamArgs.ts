@@ -14,8 +14,9 @@ export class LookingMessageInfo {
     members: Array<Member>;
     isDeleting: boolean;
     deletionDate: Date;
+    creator: Discord.User;
 
-    constructor(maxPlayers: number, hh: number, mm: number, game: string) {
+    constructor(maxPlayers: number, hh: number, mm: number, game: string, creator: Discord.User) {
         this.maxPlayers = maxPlayers;
         this.game = game;
         // Create date
@@ -23,6 +24,7 @@ export class LookingMessageInfo {
         this.members = new Array<Member>();
         this.isDeleting = false;
         this.deletionDate = null;
+        this.creator = creator;
     }
 
     static getAdjustedDate(hh: number, mm: number): Date {

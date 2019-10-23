@@ -181,7 +181,7 @@ async function handleCommand(msg: Discord.Message | Discord.PartialMessage) {
         const hh = parseInt(argsArray[2]);
         const mm = parseInt(argsArray[3]);
         const game = argsArray[4];
-        let lookingInfo = new LookingMessageInfo(maxPlayers, hh, mm, game);
+        let lookingInfo = new LookingMessageInfo(maxPlayers, hh, mm, game, msg.author);
 
         // Send the "looking for team" message and wait for reactions
         let lookingMsg = (await msg.channel.send(lookingInfo.getMessage())) as Discord.Message;
@@ -203,7 +203,7 @@ async function handleCommand(msg: Discord.Message | Discord.PartialMessage) {
         let deletionTimeout: NodeJS.Timeout = null;
         collector.on('collect', (reaction, user) => {
             // Delete message if ❌ is pressed
-            if (reaction.emoji.name == cancelEmoji) {
+            if (reaction.emoji.name == cancelEmoji && user.id === lookingInfo.creator.id) {
                 lookingInfo.startDeleteTimer(15);
                 lookingMsg.edit(lookingInfo.getMessage());
                 deletionTimeout = setTimeout(() => {

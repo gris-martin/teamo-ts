@@ -2,7 +2,7 @@ import * as Discord from 'discord.js';
 import { config } from './config';
 import { Member } from './Member';
 import { Team, TeamArray } from './Team';
-import { LookingMessageInfo as LookingMessageInfo } from './TeamArgs';
+import { LookingMessageInfo as LookingMessageInfo } from './LookingMessageInfo';
 import { generateName } from './NameGenerator';
 import getLanguageResource from './LanguageResource';
 

@@ -2,7 +2,7 @@ import * as Discord from 'discord.js';
 import { config } from './config';
 import { Member } from './Member';
 import { Team, TeamArray } from './Team';
-import { TeamArgs } from './TeamArgs';
+import { LookingMessageInfo as LookingMessageInfo } from './TeamArgs';
 import { generateName } from './NameGenerator';
 import getLanguageResource from './LanguageResource';
 
@@ -38,6 +38,12 @@ let numberEmojis = [
 let cancelEmoji: string = "❌";
 
 
+// Array indexing starts at 0, but lowest number emoji is 1
+function getNumPlayersFromReaction(reaction: Discord.MessageReaction): number {
+    return numberEmojis.indexOf(reaction.emoji.name) + 1;
+}
+
+
 // Extract Members from a list of MessageReactions.
 // Inputs
 //      reactions: Collection of Discord.MessageReactions (as you get from Discord.Message.awaitReactions)
@@ -47,9 +53,8 @@ function extractMembers(reactions: Discord.Collection<string, Discord.MessageRea
     let members = new Array<Member>();
 
     reactions.forEach(reaction => {
-        let i = numberEmojis.indexOf(reaction.emoji.name);
-        if (i < 0) return;
-        i++; // Array indexing starts at 0, but lowest number emoji is 1
+        let i = getNumPlayersFromReaction(reaction);
+        if (i < 1) return;
         reaction.users.forEach(user => {
             if (user !== client.user) {
                 members.push(new Member(user, i));
@@ -73,14 +78,9 @@ let createFilter = (maxPlayers: number) => {
         if (user.id === client.user.id)
             return false;
 
-        // If the user has already reacted with an emoji, remove the old one
         let allowedEmojis = numberEmojis.slice(0, maxPlayers);
         allowedEmojis.push(cancelEmoji);
         if (allowedEmojis.includes(reaction.emoji.name)) {
-            let oldReactions = reaction.message.reactions.filter(
-                r => (r.users.has(user.id) && r !== reaction)
-            );
-            oldReactions.forEach(r => { r.users.remove(user); });
             return true;
         }
 
@@ -150,6 +150,7 @@ async function handleCommand(msg: Discord.Message | Discord.PartialMessage) {
     const command = msg.content.split(" ")[0].replace(config.prefix, "");
     const args = msg.content.substr(msg.content.indexOf(' ') + 1);
     let commandHandled = false;
+    let updateInterval = 15;
 
     // !help
     if (command === "help") {
@@ -180,29 +181,67 @@ async function handleCommand(msg: Discord.Message | Discord.PartialMessage) {
         const hh = parseInt(argsArray[2]);
         const mm = parseInt(argsArray[3]);
         const game = argsArray[4];
-        const teamArgs = new TeamArgs(maxPlayers, hh, mm, game);
+        let lookingInfo = new LookingMessageInfo(maxPlayers, hh, mm, game);
 
         // Send the "looking for team" message and wait for reactions
-        let lookingMsg = (await msg.channel.send(teamArgs.getMessage())) as Discord.Message;
+        let lookingMsg = (await msg.channel.send(lookingInfo.getMessage())) as Discord.Message;
+        function updateMessageTimeout() {
+            if (lookingMsg == null || lookingMsg == undefined)
+                return;
+            if (lookingInfo.getWaitTimeMs() < 0)
+                return;
+            lookingMsg.edit(lookingInfo.getMessage()).catch(err => {
+                console.error(err);
+            });
+            setTimeout(updateMessageTimeout, updateInterval * 1000);
+        }
+        setTimeout(updateMessageTimeout, updateInterval * 1000);
 
-        const filter = createFilter(teamArgs.maxPlayers);
-        const collector = lookingMsg.createReactionCollector(filter, { time: teamArgs.getWaitTimeMs(), dispose: true });
+        const filter = createFilter(lookingInfo.maxPlayers);
+        const collector = lookingMsg.createReactionCollector(filter, { time: lookingInfo.getWaitTimeMs(), dispose: true });
 
-        // Delete message if ❌ is pressed
-        collector.on('collect', reaction => {
+        let deletionTimeout: NodeJS.Timeout = null;
+        collector.on('collect', (reaction, user) => {
+            // Delete message if ❌ is pressed
             if (reaction.emoji.name == cancelEmoji) {
-                lookingMsg.delete();
+                lookingInfo.startDeleteTimer(15);
+                lookingMsg.edit(lookingInfo.getMessage());
+                deletionTimeout = setTimeout(() => {
+                    lookingMsg.delete();
+                    lookingMsg = null;
+                    lookingInfo = null;
+                }, 15000);
+            } else if (numberEmojis.includes(reaction.emoji.name)) {
+                // If the user has already reacted with an emoji, remove the old one
+                let oldReactions = reaction.message.reactions.filter(
+                    r => (r.users.has(user.id) && r !== reaction)
+                );
+                oldReactions.forEach(r => {
+                    r.users.remove(user);
+                });
+                lookingInfo.changeOrCreateMember(user, getNumPlayersFromReaction(reaction));
             }
         });
+
+        collector.on('remove', (reaction: Discord.MessageReaction) =>
+        {
+            if (reaction.emoji.name == cancelEmoji && deletionTimeout != null) {
+                clearTimeout(deletionTimeout);
+                lookingInfo.stopDeleteTimer();
+                deletionTimeout = null;
+                lookingMsg.edit(lookingInfo.getMessage());
+            }
+        });
+
 
         // Create teams when the collector times out
         collector.on('end', results => {
             const members = extractMembers(results);
-            const teams = createTeams(members, teamArgs.maxPlayers);
+            const teams = createTeams(members, lookingInfo.maxPlayers);
 
             // Write message with teams to the channel
             let resultEmbed = new Discord.MessageEmbed()
-                .setTitle(`**${teamArgs.game} @ ${teamArgs.getStartTimeString()}**`)
+                .setTitle(`**${lookingInfo.game} @ ${lookingInfo.getStartTimeString()}**`)
                 .setColor("PURPLE")
                 .setFooter(getLanguageResource("RESULT_REMOVE_MESSAGE"));
             for (let i = 0; i < teams.length; i++) {
@@ -217,19 +256,8 @@ async function handleCommand(msg: Discord.Message | Discord.PartialMessage) {
             lookingMsg.delete({timeout: 10000}).catch(console.error);
         });
 
-        // Update message every 15 seconds
-        const intervalId = setInterval(updateMessage, 1000 * 15);
-        function updateMessage() {
-            lookingMsg.edit(teamArgs.getMessage(extractMembers(lookingMsg.reactions))).catch(err => {
-                if (err instanceof Discord.DiscordAPIError)
-                    clearInterval(intervalId);
-                else
-                    console.error(err);
-            });
-        }
-
         // Place reacts
-        for (let i = 0; i < teamArgs.maxPlayers - 1; i++) {
+        for (let i = 0; i < lookingInfo.maxPlayers - 1; i++) {
             await lookingMsg.react(numberEmojis[i]);
         }
         await lookingMsg.react(cancelEmoji);

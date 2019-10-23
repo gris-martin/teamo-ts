@@ -73,6 +73,18 @@ const LanguageObject: LanguageDict = {
     "ARGS_PLAY_INVALID_FORMAT": {
         "swedish": "Fel format på kommandot. Rätt format: \"!play <spelare> <hh>:<mm> <spel>\". Skriv **!help** för mer info.",
         "english": "Invalid format. The command should be on the form: \"!play <players> <hh>:<mm> <game[]>\". Type **!help** for more info."
+    },
+    "DELETION_TITLE": {
+        "swedish": "MEDDELANDET TAS BORT",
+        "english": "MESSAGE WILL BE REMOVED"
+    },
+    "DELETION_TIMER_1": {
+        "swedish": "MEDDELANDET KOMMER TAS BORT OM",
+        "english": "MESSAGE WILL BE REMOVED IN"
+    },
+    "DELETION_TIMER_2": {
+        "swedish": "SEKUNDER. TRYCK PÅ ❌ IGEN FÖR ATT AVBRYTA.",
+        "english": "SECONDS. PRESS ❌ AGAIN TO ABORT."
     }
 }
 

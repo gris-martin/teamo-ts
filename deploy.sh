@@ -6,4 +6,6 @@ npm build
 
 docker build -t $1 .
 
-docker run -e "BOT_TOKEN=$2" -d $1
+docker stop $1-instance || true && docker rm $1-instance || true
+
+docker run -e "BOT_TOKEN=$2" --name $1-instance -d $1

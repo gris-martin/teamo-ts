@@ -16,6 +16,6 @@ before_deploy:
 deploy:
   provider: script
   skip_cleanup: true
-  script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/dst root@108.61.198.106:~/bots/teamo-master
+  script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR root@108.61.198.106:~/bots/teamo-master
   on:
     all_branches: true

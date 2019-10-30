@@ -16,6 +16,7 @@ before_deploy:
 deploy:
   provider: script
   skip_cleanup: true
-  script: ./deploy.sh teamo-master NTk3MDExMDU2NTIyNTU5NDk5.XSB38Q.qlFh_drWoQH-ExzqMxk8icweqao
+  script:
+    - rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/dst $TRAVIS_BUILD_DIR/node_modules Dockerfile root@108.61.198.106:~/bots/teamo-master
   on:
     all_branches: true

@@ -17,6 +17,6 @@ deploy:
   provider: script
   skip_cleanup: true
   script:
-    secure: DWIHW3tp+FBtveD1w/jdTDz8+AWeOWB022SGS1ArWFeqqiroWheS4UjyRcvEWFAcrXpFt+DgxU4JyizxtSoj38q/0jNWkbZQPNceXS+wVc0Pb2Jv+Iho4QLLIO6tYm7itdVt7y60w9tGU03Vj+AcqW6JU0hCPCyO+KWRCssrlb9jSqJHxh6v8EWlOOETBr1WeFV4cYz2YteDvkVM36qbEODMINk1MuqzsziJV7B9OuIB/8MWP5M/w/wFCvqML+tXFJcBNPc0wis9++HScRxl1k4AdxwcohXqVfj/ACZQKRtl61GFgWqKN7x5BXfEMotl1rM6PkDt47MXk3gvjhlqieQxZJCqd7DkWP9CYaPxUmkJtyuEl7JDYSha8vhfDW59n953Tpa48vG8e8GmJVIzFew4fn4y/uP0IMGenfL04+hpAaKB66kFwg99wt7TEIJDWkJqw2QH++uaE9CyoDeAvJvRKB73dYXMZTwYVOKgnzU3xWsscfkaWnXoHCHJuygTozamI1hZ4T7A7K7ARIyJIaDdXKduAq3FogQX/y8hFLYj9oxjG5FVD10QDwy2qCB8TZlzatNmmF8O7fsrNkwDfRRiDX8Mtxfqe4EzlffdUs0WmgOne+UTSCmi+T6S0eELGFLlqnxnXPcfCngBU9U9mKImw4CqEipg3JkrOyfeOsQ=
+    secure: ./deploy.sh $TRAVIS_BRANCH $BOT_TOKEN
   on:
     all_branches: true

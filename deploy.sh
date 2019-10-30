@@ -1,6 +1,8 @@
 # Arguments:
 # 1. Name of Docker image to build
 # 2. API token for Discord bot
+set -x
+
 npm install
 npm run build
 

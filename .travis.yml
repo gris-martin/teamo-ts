@@ -16,7 +16,6 @@ before_deploy:
 deploy:
   provider: script
   skip_cleanup: true
-  script:
-    secure: ./deploy.sh teamo-master NTk3MDExMDU2NTIyNTU5NDk5.XSB38Q.qlFh_drWoQH-ExzqMxk8icweqao
+  script: ./deploy.sh teamo-master NTk3MDExMDU2NTIyNTU5NDk5.XSB38Q.qlFh_drWoQH-ExzqMxk8icweqao
   on:
     all_branches: true

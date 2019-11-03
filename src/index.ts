@@ -164,7 +164,7 @@ async function handleCommand(msg: Discord.Message | Discord.PartialMessage) {
                 "!play 6 14:26 OW")
             .setFooter(getLanguageResource("HELP_FOOTER"));
         (await msg.channel.send(helpEmbed) as Discord.Message)
-            .delete({timeout: 60000});
+            .delete({ timeout: 60000 });
         commandHandled = true;
     }
 
@@ -174,7 +174,7 @@ async function handleCommand(msg: Discord.Message | Discord.PartialMessage) {
         const argsArray = args.match(/(\d+)\s(\d{1,2})[:.]?(\d{2})\s(.+)/);
         if (argsArray === null) {
             (await msg.channel.send(getLanguageResource("ARGS_PLAY_INVALID_FORMAT")) as Discord.Message)
-                .delete({timeout: 10000});
+                .delete({ timeout: 10000 });
             return;
         }
         const maxPlayers = parseInt(argsArray[1]);
@@ -223,8 +223,7 @@ async function handleCommand(msg: Discord.Message | Discord.PartialMessage) {
             }
         });
 
-        collector.on('remove', (reaction: Discord.MessageReaction) =>
-        {
+        collector.on('remove', (reaction: Discord.MessageReaction) => {
             if (reaction.emoji.name == cancelEmoji && deletionTimeout != null) {
                 clearTimeout(deletionTimeout);
                 lookingInfo.stopDeleteTimer();
@@ -249,11 +248,11 @@ async function handleCommand(msg: Discord.Message | Discord.PartialMessage) {
                 resultEmbed = resultEmbed.addField(`${team.name} (${team.getNumPlayers()} ${getLanguageResource("PLAYERS")})`, team.getMembersString());
             }
             lookingMsg.channel.send(resultEmbed)
-                .then(foundMsg => (foundMsg as Discord.Message).delete({timeout: 15 * 60 * 10000}))
+                .then(foundMsg => (foundMsg as Discord.Message).delete({ timeout: 15 * 60 * 10000 }))
                 .catch(console.error);
 
             // Delete registration message after 10 seconds
-            lookingMsg.delete({timeout: 10000}).catch(console.error);
+            lookingMsg.delete({ timeout: 10000 }).catch(console.error);
         });
 
         // Place reacts
@@ -272,11 +271,11 @@ async function handleCommand(msg: Discord.Message | Discord.PartialMessage) {
 
     // Notify the user if the command was invalid
     if (commandHandled)
-        msg.delete({timeout: 5000}).catch(console.error);
+        msg.delete({ timeout: 5000 }).catch(console.error);
     else {
         let invalidMsg = await msg.channel.send(`Invalid command: "${command}"`) as Discord.Message;
-        invalidMsg.delete({timeout: 10000}).catch(console.error);
-        msg.delete({timeout: 10000}).catch(console.error);
+        invalidMsg.delete({ timeout: 10000 }).catch(console.error);
+        msg.delete({ timeout: 10000 }).catch(console.error);
     }
 }
 

@@ -3,7 +3,6 @@ import { config } from './config';
 import { Member } from './Member';
 import { Team, TeamArray } from './Team';
 import { LookingMessageInfo as LookingMessageInfo } from './LookingMessageInfo';
-import { generateName } from './NameGenerator';
 import getLanguageResource from './LanguageResource';
 
 const client = new Discord.Client();
@@ -260,12 +259,6 @@ async function handleCommand(msg: Discord.Message | Discord.PartialMessage) {
             await lookingMsg.react(numberEmojis[i]);
         }
         await lookingMsg.react(cancelEmoji);
-        commandHandled = true;
-    }
-
-    // !getName
-    if (command === "getName") {
-        msg.channel.send(generateName());
         commandHandled = true;
     }
 

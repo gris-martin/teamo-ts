@@ -9,7 +9,7 @@ const client = new Discord.Client();
 
 client.on('ready', () => {
     console.log("Bot online!");
-    client.user.setActivity("!help for usage info", { type: 'PLAYING' });
+    client.user.setActivity("!teamo for usage info", { type: 'PLAYING' });
 });
 
 client.on('message', msg => {
@@ -144,131 +144,154 @@ function createTeams(members: Member[], maxPlayers: number) {
     return teams;
 }
 
+async function handleHelpCommand(channel: Discord.TextChannel | Discord.DMChannel) {
+    let helpEmbed = new Discord.MessageEmbed()
+        .setColor("PURPLE")
+        .setTitle(`**${getLanguageResource("HELP_TITLE")}**`)
+        .setDescription("\n[GitHub](https://github.com/hassanbot/teamo)\n\n" + getLanguageResource("HELP_DESCRIPTION"))
+        .addField(getLanguageResource("HELP_FORMAT_TITLE"), getLanguageResource("HELP_FORMAT_FIELD"))
+        .addField(getLanguageResource("HELP_EXAMPLE_TITLE"),
+            "!teamo 5 20:00 League of Legends\n" +
+            "!teamo 6 14:26 OW")
+        .setFooter(getLanguageResource("HELP_FOOTER"));
+    (await channel.send(helpEmbed) as Discord.Message)
+        .delete({ timeout: 60000 });
+
+}
+
+type MainCommandArgs = {
+    args: string,
+    channel: Discord.TextChannel | Discord.DMChannel,
+    author: Discord.User,
+    updateInterval: number
+}
+
+async function handleMainCommand(args: MainCommandArgs) : Promise<boolean> {
+    // Validate arguments
+    const argsArray = args.args.match(/(\d+)\s(\d{1,2})[:.]?(\d{2})\s(.+)/);
+    if (argsArray === null) {
+        (await args.channel.send(getLanguageResource("ARGS_PLAY_INVALID_FORMAT")) as Discord.Message)
+            .delete({ timeout: 10000 });
+        return false;
+    }
+    const maxPlayers = parseInt(argsArray[1]);
+    const hh = parseInt(argsArray[2]);
+    const mm = parseInt(argsArray[3]);
+    const game = argsArray[4];
+    let lookingInfo = new LookingMessageInfo(maxPlayers, hh, mm, game, args.author);
+
+    // Send the "looking for team" message and wait for reactions
+    let lookingMsg = (await args.channel.send(lookingInfo.getMessage())) as Discord.Message;
+    function updateMessageTimeout() {
+        if (lookingMsg == null || lookingMsg == undefined)
+            return false;
+        if (lookingInfo.getWaitTimeMs() < 0)
+            return false;
+        lookingMsg.edit(lookingInfo.getMessage()).catch(err => {
+            console.error(err);
+        });
+        setTimeout(updateMessageTimeout, args.updateInterval * 1000);
+    }
+    setTimeout(updateMessageTimeout, args.updateInterval * 1000);
+
+    const filter = createFilter(lookingInfo.maxPlayers);
+    const collector = lookingMsg.createReactionCollector(filter, { time: lookingInfo.getWaitTimeMs(), dispose: true });
+
+    let deletionTimeout: NodeJS.Timeout = null;
+    collector.on('collect', (reaction, user) => {
+        // Delete message if ❌ is pressed
+        if (reaction.emoji.name == cancelEmoji && user.id === lookingInfo.creator.id) {
+            lookingInfo.startDeleteTimer(15);
+            lookingMsg.edit(lookingInfo.getMessage());
+            deletionTimeout = setTimeout(() => {
+                lookingMsg.delete();
+                lookingMsg = null;
+                lookingInfo = null;
+            }, 15000);
+        } else if (numberEmojis.includes(reaction.emoji.name)) {
+            // If the user has already reacted with an emoji, remove the old one
+            let oldReactions = reaction.message.reactions.filter(
+                r => (r.users.has(user.id) && r !== reaction)
+            );
+            oldReactions.forEach(r => {
+                r.users.remove(user);
+            });
+            lookingInfo.changeOrCreateMember(user, getNumPlayersFromReaction(reaction));
+        }
+    });
+
+    collector.on('remove', (reaction: Discord.MessageReaction) => {
+        if (reaction.emoji.name == cancelEmoji && deletionTimeout != null) {
+            clearTimeout(deletionTimeout);
+            lookingInfo.stopDeleteTimer();
+            deletionTimeout = null;
+            lookingMsg.edit(lookingInfo.getMessage());
+        }
+    });
+
+
+    // Create teams when the collector times out
+    collector.on('end', results => {
+        const members = extractMembers(results);
+        const teams = createTeams(members, lookingInfo.maxPlayers);
+
+        // Write message with teams to the channel
+        let resultEmbed = new Discord.MessageEmbed()
+            .setTitle(`**${lookingInfo.game} @ ${lookingInfo.getStartTimeString()}**`)
+            .setColor("PURPLE")
+            .setFooter(getLanguageResource("RESULT_REMOVE_MESSAGE"));
+        for (let i = 0; i < teams.length; i++) {
+            const team = teams[i];
+            resultEmbed = resultEmbed.addField(`${team.name} (${team.getNumPlayers()} ${getLanguageResource("PLAYERS")})`, team.getMembersString());
+        }
+        lookingMsg.channel.send(resultEmbed)
+            .then(foundMsg => (foundMsg as Discord.Message).delete({ timeout: 15 * 60 * 10000 }))
+            .catch(console.error);
+
+        // Delete registration message after 10 seconds
+        lookingMsg.delete({ timeout: 10000 }).catch(console.error);
+    });
+
+    // Place reacts
+    for (let i = 0; i < lookingInfo.maxPlayers - 1; i++) {
+        await lookingMsg.react(numberEmojis[i]);
+    }
+    await lookingMsg.react(cancelEmoji);
+    return true;
+}
+
 // Handle commands
 async function handleCommand(msg: Discord.Message | Discord.PartialMessage) {
     const command = msg.content.split(" ")[0].replace(config.prefix, "");
     const args = msg.content.substr(msg.content.indexOf(' ') + 1);
-    let commandHandled = false;
+    console.log(`Command is \"${command}\"`);
+    console.log(`Args is \"${args}\"`);
     let updateInterval = 15;
 
-    // !help
-    if (command === "help") {
-        let helpEmbed = new Discord.MessageEmbed()
-            .setColor("PURPLE")
-            .setTitle(`**${getLanguageResource("HELP_TITLE")}**`)
-            .setDescription("\n[GitHub](https://github.com/hassanbot/teamo)\n\n" + getLanguageResource("HELP_DESCRIPTION"))
-            .addField(getLanguageResource("HELP_FORMAT_TITLE"), getLanguageResource("HELP_FORMAT_FIELD"))
-            .addField(getLanguageResource("HELP_EXAMPLE_TITLE"),
-                "!play 5 20:00 League of Legends\n" +
-                "!play 6 14:26 OW")
-            .setFooter(getLanguageResource("HELP_FOOTER"));
-        (await msg.channel.send(helpEmbed) as Discord.Message)
-            .delete({ timeout: 60000 });
-        commandHandled = true;
-    }
-
-    // !createTeam
-    if (command === "play") {
-        // Validate arguments
-        const argsArray = args.match(/(\d+)\s(\d{1,2})[:.]?(\d{2})\s(.+)/);
-        if (argsArray === null) {
-            (await msg.channel.send(getLanguageResource("ARGS_PLAY_INVALID_FORMAT")) as Discord.Message)
-                .delete({ timeout: 10000 });
-            return;
+    if (command === "teamo") {
+        let success = true;
+        // !help
+        if (args === "!teamo" || args.toLowerCase() === "help") {
+            await handleHelpCommand(msg.channel);
         }
-        const maxPlayers = parseInt(argsArray[1]);
-        const hh = parseInt(argsArray[2]);
-        const mm = parseInt(argsArray[3]);
-        const game = argsArray[4];
-        let lookingInfo = new LookingMessageInfo(maxPlayers, hh, mm, game, msg.author);
-
-        // Send the "looking for team" message and wait for reactions
-        let lookingMsg = (await msg.channel.send(lookingInfo.getMessage())) as Discord.Message;
-        function updateMessageTimeout() {
-            if (lookingMsg == null || lookingMsg == undefined)
-                return;
-            if (lookingInfo.getWaitTimeMs() < 0)
-                return;
-            lookingMsg.edit(lookingInfo.getMessage()).catch(err => {
-                console.error(err);
-            });
-            setTimeout(updateMessageTimeout, updateInterval * 1000);
+        // Main command
+        else {
+            const mainCommandArgs = {
+                args: args,
+                channel: msg.channel,
+                author: msg.author,
+                updateInterval: updateInterval
+            }
+            success = await handleMainCommand(mainCommandArgs);
         }
-        setTimeout(updateMessageTimeout, updateInterval * 1000);
-
-        const filter = createFilter(lookingInfo.maxPlayers);
-        const collector = lookingMsg.createReactionCollector(filter, { time: lookingInfo.getWaitTimeMs(), dispose: true });
-
-        let deletionTimeout: NodeJS.Timeout = null;
-        collector.on('collect', (reaction, user) => {
-            // Delete message if ❌ is pressed
-            if (reaction.emoji.name == cancelEmoji && user.id === lookingInfo.creator.id) {
-                lookingInfo.startDeleteTimer(15);
-                lookingMsg.edit(lookingInfo.getMessage());
-                deletionTimeout = setTimeout(() => {
-                    lookingMsg.delete();
-                    lookingMsg = null;
-                    lookingInfo = null;
-                }, 15000);
-            } else if (numberEmojis.includes(reaction.emoji.name)) {
-                // If the user has already reacted with an emoji, remove the old one
-                let oldReactions = reaction.message.reactions.filter(
-                    r => (r.users.has(user.id) && r !== reaction)
-                );
-                oldReactions.forEach(r => {
-                    r.users.remove(user);
-                });
-                lookingInfo.changeOrCreateMember(user, getNumPlayersFromReaction(reaction));
-            }
-        });
-
-        collector.on('remove', (reaction: Discord.MessageReaction) => {
-            if (reaction.emoji.name == cancelEmoji && deletionTimeout != null) {
-                clearTimeout(deletionTimeout);
-                lookingInfo.stopDeleteTimer();
-                deletionTimeout = null;
-                lookingMsg.edit(lookingInfo.getMessage());
-            }
-        });
-
-
-        // Create teams when the collector times out
-        collector.on('end', results => {
-            const members = extractMembers(results);
-            const teams = createTeams(members, lookingInfo.maxPlayers);
-
-            // Write message with teams to the channel
-            let resultEmbed = new Discord.MessageEmbed()
-                .setTitle(`**${lookingInfo.game} @ ${lookingInfo.getStartTimeString()}**`)
-                .setColor("PURPLE")
-                .setFooter(getLanguageResource("RESULT_REMOVE_MESSAGE"));
-            for (let i = 0; i < teams.length; i++) {
-                const team = teams[i];
-                resultEmbed = resultEmbed.addField(`${team.name} (${team.getNumPlayers()} ${getLanguageResource("PLAYERS")})`, team.getMembersString());
-            }
-            lookingMsg.channel.send(resultEmbed)
-                .then(foundMsg => (foundMsg as Discord.Message).delete({ timeout: 15 * 60 * 10000 }))
-                .catch(console.error);
-
-            // Delete registration message after 10 seconds
-            lookingMsg.delete({ timeout: 10000 }).catch(console.error);
-        });
-
-        // Place reacts
-        for (let i = 0; i < lookingInfo.maxPlayers - 1; i++) {
-            await lookingMsg.react(numberEmojis[i]);
+        // Notify the user if the command was invalid
+        if (success)
+            msg.delete({ timeout: 5000 }).catch(console.error);
+        else {
+            let invalidMsg = await msg.channel.send(`Invalid command: "${command}"`) as Discord.Message;
+            invalidMsg.delete({ timeout: 10000 }).catch(console.error);
+            msg.delete({ timeout: 10000 }).catch(console.error);
         }
-        await lookingMsg.react(cancelEmoji);
-        commandHandled = true;
-    }
-
-    // Notify the user if the command was invalid
-    if (commandHandled)
-        msg.delete({ timeout: 5000 }).catch(console.error);
-    else {
-        let invalidMsg = await msg.channel.send(`Invalid command: "${command}"`) as Discord.Message;
-        invalidMsg.delete({ timeout: 10000 }).catch(console.error);
-        msg.delete({ timeout: 10000 }).catch(console.error);
     }
 }
 

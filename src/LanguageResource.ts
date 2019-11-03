@@ -23,8 +23,8 @@ const LanguageObject: LanguageDict = {
         "english": "Format"
     },
     "HELP_FORMAT_FIELD": {
-        "swedish": "!play <antal spelare per lag> <starttid (hh:mm)> <spel>",
-        "english": "!play <number of players per team> <time to start (hh:mm)> <game>"
+        "swedish": "!teamo <antal spelare per lag> <starttid (hh:mm)> <spel>",
+        "english": "!teamo <number of players per team> <time to start (hh:mm)> <game>"
     },
     "HELP_EXAMPLE_TITLE": {
         "swedish": "Exempel",
@@ -71,8 +71,8 @@ const LanguageObject: LanguageDict = {
         "english": "Updated every 15th second. Last update"
     },
     "ARGS_PLAY_INVALID_FORMAT": {
-        "swedish": "Fel format på kommandot. Rätt format: \"!play <spelare> <hh>:<mm> <spel>\". Skriv **!help** för mer info.",
-        "english": "Invalid format. The command should be on the form: \"!play <players> <hh>:<mm> <game[]>\". Type **!help** for more info."
+        "swedish": "Fel format på kommandot. Rätt format: \"!teamo <spelare> <hh>:<mm> <spel>\". Skriv **!help** för mer info.",
+        "english": "Invalid format. The command should be on the form: \"!teamo <players> <hh>:<mm> <game[]>\". Type **!help** for more info."
     },
     "DELETION_TITLE": {
         "swedish": "MEDDELANDET TAS BORT",

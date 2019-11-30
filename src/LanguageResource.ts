@@ -85,6 +85,14 @@ const LanguageObject: LanguageDict = {
     "DELETION_TIMER_2": {
         "swedish": "SEKUNDER. TRYCK PÅ ❌ IGEN FÖR ATT AVBRYTA.",
         "english": "SECONDS. PRESS ❌ AGAIN TO ABORT."
+    },
+    "TODAY": {
+        "swedish": "idag",
+        "english": "today"
+    },
+    "TOMORROW": {
+        "swedish": "imorgon",
+        "english": "tomorrow"
     }
 }
 

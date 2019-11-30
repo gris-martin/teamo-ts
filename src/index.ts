@@ -4,6 +4,7 @@ import { Member } from './Member';
 import { Team, TeamArray } from './Team';
 import { LookingMessageInfo as LookingMessageInfo } from './LookingMessageInfo';
 import getLanguageResource from './LanguageResource';
+import { getWaitTimeMs, getTimeString } from './TimeUtils';
 
 const client = new Discord.Client();
 
@@ -185,7 +186,7 @@ async function handleMainCommand(args: MainCommandArgs) : Promise<boolean> {
     function updateMessageTimeout() {
         if (lookingMsg == null || lookingMsg == undefined)
             return false;
-        if (lookingInfo.getWaitTimeMs() < 0)
+        if (getWaitTimeMs(lookingInfo.date) < 0)
             return false;
         lookingMsg.edit(lookingInfo.getMessage()).catch(err => {
             console.error(err);
@@ -195,7 +196,7 @@ async function handleMainCommand(args: MainCommandArgs) : Promise<boolean> {
     setTimeout(updateMessageTimeout, args.updateInterval * 1000);
 
     const filter = createFilter(lookingInfo.maxPlayers);
-    const collector = lookingMsg.createReactionCollector(filter, { time: lookingInfo.getWaitTimeMs(), dispose: true });
+    const collector = lookingMsg.createReactionCollector(filter, { time: getWaitTimeMs(lookingInfo.date), dispose: true });
 
     let deletionTimeout: NodeJS.Timeout = null;
     collector.on('collect', (reaction, user) => {
@@ -237,7 +238,7 @@ async function handleMainCommand(args: MainCommandArgs) : Promise<boolean> {
 
         // Write message with teams to the channel
         let resultEmbed = new Discord.MessageEmbed()
-            .setTitle(`**${lookingInfo.game} @ ${lookingInfo.getStartTimeString()}**`)
+            .setTitle(`**${lookingInfo.game} @ ${getTimeString(lookingInfo.date, false, true)}**`)
             .setColor("PURPLE")
             .setFooter(getLanguageResource("RESULT_REMOVE_MESSAGE"));
         for (let i = 0; i < teams.length; i++) {

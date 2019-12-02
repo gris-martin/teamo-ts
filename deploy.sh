@@ -13,4 +13,4 @@ rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/dst $TRAVIS_BUILD_DIR/node_mod
 ssh root@108.61.198.106 "cd ~/bots/$branch ; docker build -t $branch ."
 ssh root@108.61.198.106 "cd ~/bots/$branch ; docker stop $branch-instance || true"
 ssh root@108.61.198.106 "cd ~/bots/$branch ; docker rm $branch-instance || true"
-ssh root@108.61.198.106 "cd ~/bots/$branch ; docker run -e BOT_TOKEN=$BOT_TOKEN -e TZ=Europe/Stockholm --restart unless-stopped --name $branch-instance -d $branch"
+ssh root@108.61.198.106 "cd ~/bots/$branch ; docker run -e TEAMO_BOT_TOKEN=$TEAMO_BOT_TOKEN -e TEAMO_CHANNEL_ID=$TEAMO_CHANNEL_ID -e TZ=Europe/Stockholm --restart unless-stopped --name $branch-instance -d $branch"

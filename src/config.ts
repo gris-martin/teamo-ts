@@ -1,17 +1,17 @@
 type Config = {
     token: string,
     prefix: string,
-    commands: string[],
-    language: "swedish" | "english";
+    language: "swedish" | "english",
+    updateInterval: number,
+    useSpecificChannel: boolean,
+    channelID: string
 }
 
 export const config: Config = {
-    "token": `${process.env.BOT_TOKEN}`,
+    "token": process.env.TEAMO_BOT_TOKEN,
     "prefix": "!",
-    "commands": [
-        "help",
-        "play",
-        "getName"
-    ],
-    "language": "swedish"
+    "language": "swedish",
+    "updateInterval": 15,
+    "useSpecificChannel": true,
+    "channelID": process.env.TEAMO_CHANNEL_ID || "-1"
 }

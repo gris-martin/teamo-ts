@@ -18,11 +18,15 @@ client.on('message', msg => {
     if (!msg.content.startsWith(config.prefix))
         return;
 
+    const command = msg.content.split(" ")[0].replace(config.prefix, "");
+    if (command.toLowerCase() !== "teamo")
+        return;
+
     handleCommand(msg);
 });
 
 
-async function handleHelpCommand(channel: Discord.TextChannel | Discord.DMChannel) {
+async function handleHelpCommand(channel: Discord.TextChannel | Discord.DMChannel, isWelcomeMessage: boolean = false) {
     let helpEmbed = new Discord.MessageEmbed()
         .setColor("PURPLE")
         .setTitle(`**${getLanguageResource("HELP_TITLE")}**`)
@@ -30,10 +34,14 @@ async function handleHelpCommand(channel: Discord.TextChannel | Discord.DMChanne
         .addField(getLanguageResource("HELP_FORMAT_TITLE"), getLanguageResource("HELP_FORMAT_FIELD"))
         .addField(getLanguageResource("HELP_EXAMPLE_TITLE"),
             "!teamo 5 20:00 League of Legends\n" +
-            "!teamo 6 14:26 OW")
-        .setFooter(getLanguageResource("HELP_FOOTER"));
-    (await channel.send(helpEmbed) as Discord.Message)
-        .delete({ timeout: 60000 });
+            "!teamo 6 14:26 OW");
+    if (!isWelcomeMessage)
+        helpEmbed.setFooter(getLanguageResource("HELP_FOOTER"));
+
+    let msg = await channel.send(helpEmbed) as Discord.Message;
+
+    if (!isWelcomeMessage)
+        msg.delete({ timeout: 60000 });
 
 }
 
@@ -65,37 +73,31 @@ async function handleMainCommand(args: MainCommandArgs): Promise<boolean> {
 
 // Handle commands
 async function handleCommand(msg: Discord.Message | Discord.PartialMessage) {
-    const command = msg.content.split(" ")[0].replace(config.prefix, "");
     const args = msg.content.substr(msg.content.indexOf(' ') + 1);
-    console.log(`Command is \"${command}\"`);
     console.log(`Args is \"${args}\"`);
     let updateInterval = 15;
 
-    if (command === "teamo") {
-        let success = true;
-        // !help
-        if (args === "!teamo" || args.toLowerCase() === "help") {
-            await handleHelpCommand(msg.channel);
-        }
-        // Main command
-        else {
-            const mainCommandArgs = {
-                args: args,
-                channel: msg.channel as Discord.TextChannel,
-                author: msg.author,
-                updateInterval: updateInterval
-            }
-            success = await handleMainCommand(mainCommandArgs);
-        }
-        // Notify the user if the command was invalid
-        if (success)
-            msg.delete({ timeout: 5000 }).catch(console.error);
-        else {
-            let invalidMsg = await msg.channel.send(`Invalid command: "${command}"`) as Discord.Message;
-            invalidMsg.delete({ timeout: 10000 }).catch(console.error);
-            msg.delete({ timeout: 10000 }).catch(console.error);
-        }
+    if (config.useSpecificChannel && msg.channel.id !== config.channelID)
+    {
+        let wrongChannelMsg = await msg.channel.send(`${getLanguageResource("WRONG_CHANNEL")} ${client.channels.get(config.channelID)}`);
+        wrongChannelMsg.delete({timeout: 10000}).catch();
     }
+    else if (args === "!teamo" || args.toLowerCase() === "help") {
+        await handleHelpCommand(msg.channel);
+    }
+    else if (args === "welcome") {
+        await handleHelpCommand(msg.channel, true);
+    }
+    else {
+        const mainCommandArgs = {
+            args: args,
+            channel: msg.channel as Discord.TextChannel,
+            author: msg.author,
+            updateInterval: updateInterval
+        }
+        await handleMainCommand(mainCommandArgs);
+    }
+    msg.delete({timeout: 10000}).catch();
 }
 
 client.login(config.token);

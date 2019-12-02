@@ -47,8 +47,7 @@ export function getAdjustedDate(hh: number, mm: number): Date {
 export function getWaitTimeMs(date: Date) {
     let waitTime = date.valueOf() - Date.now();
     if (waitTime < 0) {
-        console.trace("Tried to get the time until a Date that has already passed. Returning 0");
-        return 0;
+        console.warn("Tried to get the time until a Date that has already passed");
     }
     return waitTime;
 }

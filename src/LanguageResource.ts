@@ -71,8 +71,8 @@ const LanguageObject: LanguageDict = {
         "english": "Updated every 15th second. Last update"
     },
     "ARGS_PLAY_INVALID_FORMAT": {
-        "swedish": "Fel format på kommandot. Rätt format: \"!teamo <spelare> <hh>:<mm> <spel>\". Skriv **!help** för mer info.",
-        "english": "Invalid format. The command should be on the form: \"!teamo <players> <hh>:<mm> <game[]>\". Type **!help** for more info."
+        "swedish": "Fel format på kommandot. Rätt format: \"!teamo <spelare> <hh>:<mm> <spel>\". Skriv **!teamo help** för mer info.",
+        "english": "Invalid format. The command should be on the form: \"!teamo <players> <hh>:<mm> <game[]>\". Type **!teamo help** for more info."
     },
     "DELETION_TITLE": {
         "swedish": "MEDDELANDET TAS BORT",
@@ -93,6 +93,10 @@ const LanguageObject: LanguageDict = {
     "TOMORROW": {
         "swedish": "imorgon",
         "english": "tomorrow"
+    },
+    "WRONG_CHANNEL": {
+        "swedish": "Teamo kan bara användas från",
+        "english": "Teamo can only be used from"
     }
 }
 

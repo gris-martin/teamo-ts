@@ -75,7 +75,6 @@ async function handleMainCommand(args: MainCommandArgs): Promise<boolean> {
 async function handleCommand(msg: Discord.Message | Discord.PartialMessage) {
     const args = msg.content.substr(msg.content.indexOf(' ') + 1);
     console.log(`Args is \"${args}\"`);
-    let updateInterval = 15;
 
     if (config.useSpecificChannel && msg.channel.id !== config.channelID)
     {
@@ -93,7 +92,7 @@ async function handleCommand(msg: Discord.Message | Discord.PartialMessage) {
             args: args,
             channel: msg.channel as Discord.TextChannel,
             author: msg.author,
-            updateInterval: updateInterval
+            updateInterval: config.updateInterval
         }
         await handleMainCommand(mainCommandArgs);
     }

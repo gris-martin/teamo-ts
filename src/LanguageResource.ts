@@ -23,8 +23,8 @@ const LanguageObject: LanguageDict = {
         "english": "Format"
     },
     "HELP_FORMAT_FIELD": {
-        "swedish": "!teamo <antal spelare per lag> <starttid (hh:mm)> <spel>",
-        "english": "!teamo <number of players per team> <time to start (hh:mm)> <game>"
+        "swedish": "<antal spelare per lag> <starttid (hh:mm)> <spel>",
+        "english": "<number of players per team> <time to start (hh:mm)> <game>"
     },
     "HELP_EXAMPLE_TITLE": {
         "swedish": "Exempel",
@@ -70,9 +70,13 @@ const LanguageObject: LanguageDict = {
         "swedish": "Uppdateras var 15:e sekund. Senast uppdaterad",
         "english": "Updated every 15th second. Last update"
     },
-    "ARGS_PLAY_INVALID_FORMAT": {
-        "swedish": "Fel format på kommandot. Rätt format: \"!teamo <spelare> <hh>:<mm> <spel>\". Skriv **!teamo help** för mer info.",
-        "english": "Invalid format. The command should be on the form: \"!teamo <players> <hh>:<mm> <game[]>\". Type **!teamo help** for more info."
+    "ARGS_PLAY_INVALID_FORMAT_1": {
+        "swedish": "Fel format på kommandot. Rätt format: \"<spelare> <hh>:<mm> <spel>\". Se",
+        "english": "Invalid format. The command should be on the form: \"<players> <hh>:<mm> <game>\". See"
+    },
+    "ARGS_PLAY_INVALID_FORMAT_2": {
+        "swedish": "för mer info.",
+        "english": "for more info."
     },
     "DELETION_TITLE": {
         "swedish": "MEDDELANDET TAS BORT",
@@ -97,6 +101,14 @@ const LanguageObject: LanguageDict = {
     "WRONG_CHANNEL": {
         "swedish": "Teamo kan bara användas från",
         "english": "Teamo can only be used from"
+    },
+    "NEW_MESSAGE_CREATED_DM": {
+        "swedish": "Meddelande skapat i",
+        "english": "Message created in"
+    },
+    "IN_PRIVATE_MESSAGE": {
+        "swedish": "i privat meddelande",
+        "english": "in direct message"
     }
 }
 
@@ -104,5 +116,5 @@ export default function getLanguageResource(desc: string) {
     if (desc in LanguageObject)
         return LanguageObject[desc][config.language];
     else
-        throw Error("Invalid language description");
+        return "INVALID LOCALIZATION STRING";
 }

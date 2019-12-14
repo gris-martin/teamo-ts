@@ -3,6 +3,7 @@ import { config } from './config';
 import getLanguageResource from './LanguageResource';
 import { getAdjustedDate } from './TimeUtils';
 import { TeamoCommandWaiting } from './TeamoCommandWaiting';
+import { handleHelpCommand } from './HelpCommand';
 
 const client = new Discord.Client();
 
@@ -15,35 +16,12 @@ client.on('message', msg => {
     if (msg.author.bot)
         return;
 
-    if (!msg.content.startsWith(config.prefix))
-        return;
-
-    const command = msg.content.split(" ")[0].replace(config.prefix, "");
-    if (command.toLowerCase() !== "teamo")
+    if (!msg.mentions.users.get(msg.client.user.id) && !(msg.channel.type == 'dm'))
         return;
 
     handleCommand(msg);
 });
 
-
-async function handleHelpCommand(channel: Discord.TextChannel | Discord.DMChannel, isWelcomeMessage: boolean = false) {
-    let helpEmbed = new Discord.MessageEmbed()
-        .setColor("PURPLE")
-        .setTitle(`**${getLanguageResource("HELP_TITLE")}**`)
-        .setDescription("\n[GitHub](https://github.com/hassanbot/teamo)\n\n" + getLanguageResource("HELP_DESCRIPTION"))
-        .addField(getLanguageResource("HELP_FORMAT_TITLE"), getLanguageResource("HELP_FORMAT_FIELD"))
-        .addField(getLanguageResource("HELP_EXAMPLE_TITLE"),
-            "!teamo 5 20:00 League of Legends\n" +
-            "!teamo 6 14:26 OW");
-    if (!isWelcomeMessage)
-        helpEmbed.setFooter(getLanguageResource("HELP_FOOTER"));
-
-    let msg = await channel.send(helpEmbed) as Discord.Message;
-
-    if (!isWelcomeMessage)
-        msg.delete({ timeout: 60000 });
-
-}
 
 type MainCommandArgs = {
     args: string,
@@ -55,9 +33,14 @@ type MainCommandArgs = {
 async function handleMainCommand(args: MainCommandArgs): Promise<boolean> {
     // Validate arguments
     const argsArray = args.args.match(/(\d+)\s(\d{1,2})[:.]?(\d{2})\s(.+)/);
+    const teamoChannel = client.channels.get(config.channelID);
     if (argsArray === null) {
-        (await args.channel.send(getLanguageResource("ARGS_PLAY_INVALID_FORMAT")) as Discord.Message)
-            .delete({ timeout: 10000 });
+        const invalidMsg1 = getLanguageResource('ARGS_PLAY_INVALID_FORMAT_1');
+        const invalidMsg2 = getLanguageResource('ARGS_PLAY_INVALID_FORMAT_2');
+        const invalidMsg = `${invalidMsg1} ${teamoChannel} ${invalidMsg2}`;
+        let sentMsg = await args.channel.send(invalidMsg) as Discord.Message;
+        if (args.channel.type !== 'dm')
+            sentMsg.delete({ timeout: 10000 });
         return false;
     }
     const maxPlayers = parseInt(argsArray[1]);
@@ -67,25 +50,29 @@ async function handleMainCommand(args: MainCommandArgs): Promise<boolean> {
     const date = getAdjustedDate(hh, mm);
 
     const teamoWaiting = new TeamoCommandWaiting(maxPlayers, date, game, args.author, client);
-    await teamoWaiting.sendNewMessage(args.channel);
+    if (args.channel.type === 'dm')
+        args.channel.send(`${getLanguageResource('NEW_MESSAGE_CREATED_DM')} ${teamoChannel}`)
+    await teamoWaiting.sendNewMessage(teamoChannel as Discord.TextChannel);
     return true;
 }
 
 // Handle commands
 async function handleCommand(msg: Discord.Message | Discord.PartialMessage) {
-    const args = msg.content.substr(msg.content.indexOf(' ') + 1);
-    console.log(`Args is \"${args}\"`);
+    // Remove mention substring from command, and redundant whitespaces
+    let argsWithoutClient = msg.content.replace(new RegExp(`<@!${msg.client.user.id}>`, 'g'),'');
+    const args = argsWithoutClient.replace(/\s\s+/g, ' ').trim();
+    console.log(`Handling new command with args \"${args}\"`);
 
-    if (config.useSpecificChannel && msg.channel.id !== config.channelID)
+    if (msg.channel.id !== config.channelID && msg.channel.type !== 'dm')
     {
         let wrongChannelMsg = await msg.channel.send(`${getLanguageResource("WRONG_CHANNEL")} ${client.channels.get(config.channelID)}`);
         wrongChannelMsg.delete({timeout: 10000}).catch();
     }
-    else if (args === "!teamo" || args.toLowerCase() === "help") {
-        await handleHelpCommand(msg.channel);
+    else if (args.toLowerCase().includes("help")) {
+        await handleHelpCommand(msg.channel, client);
     }
     else if (args === "welcome") {
-        await handleHelpCommand(msg.channel, true);
+        await handleHelpCommand(msg.channel, client, true);
     }
     else {
         const mainCommandArgs = {
@@ -96,7 +83,8 @@ async function handleCommand(msg: Discord.Message | Discord.PartialMessage) {
         }
         await handleMainCommand(mainCommandArgs);
     }
-    msg.delete({timeout: 10000}).catch();
+    if (msg.channel.type !== 'dm')
+        msg.delete({timeout: 10000}).catch();
 }
 
 client.login(config.token);

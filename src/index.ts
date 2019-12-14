@@ -17,7 +17,15 @@ client.on('message', msg => {
         return;
 
     if (!msg.mentions.users.get(msg.client.user.id) && !(msg.channel.type == 'dm'))
+    {
+        if (msg.channel.id === config.channelID)
+        {
+            msg.channel.send(`Only post commands to ${client.user} in this channel.`)
+                .then(sentMsg => sentMsg.delete({timeout: 5000}).catch());
+            msg.delete({timeout: 5000}).catch();
+        }
         return;
+    }
 
     handleCommand(msg);
 });

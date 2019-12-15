@@ -10,7 +10,7 @@ const client = new Discord.Client();
 
 client.on('ready', () => {
     console.log("Bot online!");
-    client.user.setActivity("!teamo for usage info", { type: 'PLAYING' });
+    client.user.setActivity("DM 'help' for usage info", { type: 'PLAYING' });
 });
 
 client.on('message', msg => {

@@ -5,7 +5,6 @@ export async function handlePurgeCommand(channel: Discord.TextChannel) {
     const messages = await channel.messages.fetch();
 
     const welcomeMessage = messages.last();
-    console.log(welcomeMessage);
     if (welcomeMessage.author.id === channel.client.user.id) {
         messages.delete(messages.lastKey());
     }

@@ -125,6 +125,18 @@ const LanguageObject: LanguageDict = {
     "ONLY_MESSAGE_TO_TEAMO_2": {
         "swedish": "i den här kananelen",
         "english": "in this channel"
+    },
+    "INVALID_TIME": {
+        "swedish": "Ogiltig tid! Ange en tid mellan 00:00 och 23:59.",
+        "english": "Invalid time! Choose a time between 00:00 and 23:59."
+    },
+    "INVALID_GAME_LENGTH": {
+        "swedish": "Ogiltigt spelnamn! Ange ett spelnamn kortare än 40 tecken.",
+        "english": "Invalid game name! Choose a game name shorter than 40 characters."
+    },
+    "INVALID_MAX_PLAYERS": {
+        "swedish": "Ogiltigt antal spelare! Ange mellan 2 och 10 spelare.",
+        "english": "Invalid number of players! Number of players must be at least 2 and cannot be more than 10."
     }
 }
 

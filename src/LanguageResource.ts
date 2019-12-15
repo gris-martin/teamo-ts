@@ -109,6 +109,14 @@ const LanguageObject: LanguageDict = {
     "IN_PRIVATE_MESSAGE": {
         "swedish": "i privat meddelande",
         "english": "in direct message"
+    },
+    "ONLY_MESSAGE_TO_TEAMO_1": {
+        "swedish": "Skicka bara kommandon till",
+        "english": "Only post commands to"
+    },
+    "ONLY_MESSAGE_TO_TEAMO_2": {
+        "swedish": "i den här kananelen",
+        "english": "in this channel"
     }
 }
 

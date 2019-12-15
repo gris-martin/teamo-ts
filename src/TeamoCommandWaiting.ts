@@ -144,21 +144,13 @@ export class TeamoCommandWaiting {
         this.updateMessage();
         this.updateTimeout = setTimeout(() => this.addUpdateMessageCallback(), config.updateInterval * 1000);
     }
-
-    addMessageDeletedCallback() {
-        // TODO: This callback will never be deleted. Tried using a MessageCollector
-        // but it only listened to messages deleted by the client.
-        this.client.on('messageDelete', () => {
-            this.deleteSelf();
-        });
-    }
+    // setTimeout(updateMessageTimeout, args.updateInterval * 1000);
 
     addCallbacks() {
         this.addNumberReactionCallback();
         this.addCancelReactionCallback();
         this.addDisallowedReactionCallback();
         this.addUpdateMessageCallback();
-        this.addMessageDeletedCallback();
     }
 
     getMemberString = () => {
@@ -214,8 +206,7 @@ export class TeamoCommandWaiting {
         if (!this.isDeleted)
         {
             this.isDeleted = true;
-            if (!this.message.deleted)
-                this.message.delete();
+            this.message.delete();
             this.stopCollectors();
             clearTimeout(this.updateTimeout);
             console.log(`[${this.game}] Message deleted`);

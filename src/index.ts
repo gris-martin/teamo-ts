@@ -77,10 +77,10 @@ async function handleCommand(msg: Discord.Message | Discord.PartialMessage) {
         wrongChannelMsg.delete({timeout: 10000}).catch();
     }
     else if (args.toLowerCase().includes("help")) {
-        await handleHelpCommand(msg.channel, client);
+        await handleHelpCommand(msg.channel);
     }
-    else if (args === "welcome") {
-        await handleHelpCommand(msg.channel, client, true);
+    else if (args.toLowerCase() === "welcome") {
+        await handleHelpCommand(msg.channel, true);
     }
     else {
         const mainCommandArgs = {

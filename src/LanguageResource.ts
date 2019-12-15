@@ -14,9 +14,17 @@ const LanguageObject: LanguageDict = {
         "swedish": "Teamo - användning",
         "english": "Teamo - usage"
     },
-    "HELP_DESCRIPTION": {
+    "HELP_DESCRIPTION_1": {
         "swedish": "Använd Teamo för att kolla om folk vill spela, och skapa lag vid en viss tidpunkt. Det går att anmäla sig själv och andra till spelet genom att klicka på motsvarande emote (vill man t.ex. anmäla att man själv och en kompis vill spela klickar man på 2⃣). När tidpunkten nås kommer botten informera om hur många lag som skapas och vilka som ska spela i vilket lag.",
         "english": "Use Teamo to check if people want to play, and to make teams at a given time. Use the emotes of the created message to register yourself and others (for example, if you and a friend wants to play, press 2⃣). When the time specified in the original message is reached, the bot will create a new message with information on the number of teams, and the team composition."
+    },
+    "HELP_DESCRIPTION_2": {
+        "swedish": "Använd mentions",
+        "english": "Use mentions"
+    },
+    "HELP_DESCRIPTION_3": {
+        "swedish": "eller skicka ett privat meddelande för att ge ett kommando",
+        "english": "or send a DM to give a command"
     },
     "HELP_FORMAT_TITLE": {
         "swedish": "Format",

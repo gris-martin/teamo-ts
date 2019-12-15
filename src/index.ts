@@ -21,7 +21,7 @@ client.on('message', msg => {
     {
         if (msg.channel.id === config.channelID)
         {
-            msg.channel.send(`Only post commands to ${client.user} in this channel.`)
+            msg.channel.send(`${getLanguageResource("ONLY_MESSAGE_TO_TEAMO_1")} ${client.user} ${getLanguageResource("ONLY_MESSAGE_TO_TEAMO_2")}.`)
                 .then(sentMsg => sentMsg.delete({timeout: 5000}).catch());
             msg.delete({timeout: 5000}).catch();
         }

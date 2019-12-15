@@ -99,8 +99,8 @@ const LanguageObject: LanguageDict = {
         "english": "tomorrow"
     },
     "WRONG_CHANNEL": {
-        "swedish": "Teamo kan bara användas från",
-        "english": "Teamo can only be used from"
+        "swedish": "kan bara användas från",
+        "english": "can only be used from"
     },
     "NEW_MESSAGE_CREATED_DM": {
         "swedish": "Meddelande skapat i",

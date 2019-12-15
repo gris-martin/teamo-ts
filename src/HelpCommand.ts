@@ -17,5 +17,5 @@ export async function handleHelpCommand(channel: Discord.TextChannel | Discord.D
     let msg = await channel.send(helpEmbed) as Discord.Message;
 
     if (!isWelcomeMessage)
-        msg.delete({ timeout: 60000 });
+        msg.delete({ timeout: 60000 }).catch();
 }

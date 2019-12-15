@@ -4,6 +4,7 @@ import getLanguageResource from './LanguageResource';
 import { getAdjustedDate } from './TimeUtils';
 import { TeamoCommandWaiting } from './TeamoCommandWaiting';
 import { handleHelpCommand } from './HelpCommand';
+import { handlePurgeCommand } from './PurgeCommand';
 import { handleWelcomeCommand } from './WelcomeCommand';
 
 const client = new Discord.Client();
@@ -11,6 +12,7 @@ const client = new Discord.Client();
 client.on('ready', () => {
     console.log("Bot online!");
     client.user.setActivity("DM 'help' for usage info", { type: 'PLAYING' });
+    handlePurgeCommand(client.channels.get(config.channelID) as Discord.TextChannel);
 });
 
 client.on('message', msg => {
@@ -74,7 +76,7 @@ async function handleCommand(msg: Discord.Message | Discord.PartialMessage) {
 
     if (msg.channel.id !== config.channelID && msg.channel.type !== 'dm')
     {
-        let wrongChannelMsg = await msg.channel.send(`${getLanguageResource("WRONG_CHANNEL")} ${client.channels.get(config.channelID)}`);
+        let wrongChannelMsg = await msg.channel.send(`Teamo ${getLanguageResource("WRONG_CHANNEL")} ${client.channels.get(config.channelID)}`);
         wrongChannelMsg.delete({timeout: 10000}).catch();
     }
     else if (args.toLowerCase().includes("help")) {
@@ -82,6 +84,15 @@ async function handleCommand(msg: Discord.Message | Discord.PartialMessage) {
     }
     else if (args.toLowerCase() === "welcome") {
         await handleWelcomeCommand(msg.channel as Discord.TextChannel);
+    }
+    else if (args.toLowerCase() === "purge") {
+        if (msg.channel.id === config.channelID) {
+            await handlePurgeCommand(msg.channel as Discord.TextChannel);
+            return;
+        } else {
+            let wrongChannelMsg = await msg.channel.send(`purge ${getLanguageResource("WRONG_CHANNEL")} ${client.channels.get(config.channelID)}`);
+            wrongChannelMsg.delete({timeout: 10000}).catch();
+        }
     }
     else {
         const mainCommandArgs = {

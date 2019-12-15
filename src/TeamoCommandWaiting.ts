@@ -148,8 +148,10 @@ export class TeamoCommandWaiting {
     addMessageDeletedCallback() {
         // TODO: This callback will never be deleted. Tried using a MessageCollector
         // but it only listened to messages deleted by the client.
-        this.client.on('messageDelete', () => {
-            this.deleteSelf();
+        this.client.on('messageDelete', message => {
+            if (message.id === this.message.id) {
+                this.deleteSelf();
+            }
         });
     }
 

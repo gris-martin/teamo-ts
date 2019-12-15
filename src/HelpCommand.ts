@@ -2,7 +2,7 @@ import getLanguageResource from "./LanguageResource";
 import * as Discord from 'discord.js';
 
 export async function handleHelpCommand(channel: Discord.TextChannel | Discord.DMChannel, client: Discord.Client, isWelcomeMessage: boolean = false) {
-let helpEmbed = new Discord.MessageEmbed()
+    let helpEmbed = new Discord.MessageEmbed()
         .setColor("PURPLE")
         .setTitle(`**${getLanguageResource("HELP_TITLE")}**`)
         .setDescription("\n[GitHub](https://github.com/hassanbot/teamo)\n\n" + getLanguageResource("HELP_DESCRIPTION"))

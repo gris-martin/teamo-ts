@@ -144,7 +144,6 @@ export class TeamoCommandWaiting {
         this.updateMessage();
         this.updateTimeout = setTimeout(() => this.addUpdateMessageCallback(), config.updateInterval * 1000);
     }
-    // setTimeout(updateMessageTimeout, args.updateInterval * 1000);
 
     addMessageDeletedCallback() {
         // TODO: This callback will never be deleted. Tried using a MessageCollector

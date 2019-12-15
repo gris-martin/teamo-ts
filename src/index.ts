@@ -58,17 +58,20 @@ async function handleMainCommand(args: MainCommandArgs): Promise<boolean> {
     const maxPlayers = parseInt(argsArray[1]);
     if (maxPlayers > 10 || maxPlayers < 2) {
         args.channel.send(getLanguageResource("INVALID_MAX_PLAYERS"));
+        return false;
     }
 
     const hh = parseInt(argsArray[2]);
     const mm = parseInt(argsArray[3]);
     if (hh === NaN || mm === NaN || hh < 0 || hh > 23 || mm < 0 || mm > 59) {
         args.channel.send(getLanguageResource("INVALID_TIME"));
+        return false;
     }
 
     const game = argsArray[4];
     if (game.length > 40) {
         args.channel.send(getLanguageResource("INVALID_GAME_LENGTH"));
+        return false;
     }
 
     const date = getAdjustedDate(hh, mm);

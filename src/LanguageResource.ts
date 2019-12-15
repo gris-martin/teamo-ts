@@ -14,17 +14,25 @@ const LanguageObject: LanguageDict = {
         "swedish": "Teamo - användning",
         "english": "Teamo - usage"
     },
-    "HELP_DESCRIPTION": {
+    "HELP_DESCRIPTION_1": {
         "swedish": "Använd Teamo för att kolla om folk vill spela, och skapa lag vid en viss tidpunkt. Det går att anmäla sig själv och andra till spelet genom att klicka på motsvarande emote (vill man t.ex. anmäla att man själv och en kompis vill spela klickar man på 2⃣). När tidpunkten nås kommer botten informera om hur många lag som skapas och vilka som ska spela i vilket lag.",
         "english": "Use Teamo to check if people want to play, and to make teams at a given time. Use the emotes of the created message to register yourself and others (for example, if you and a friend wants to play, press 2⃣). When the time specified in the original message is reached, the bot will create a new message with information on the number of teams, and the team composition."
+    },
+    "HELP_DESCRIPTION_2": {
+        "swedish": "Använd mentions",
+        "english": "Use mentions"
+    },
+    "HELP_DESCRIPTION_3": {
+        "swedish": "eller skicka ett privat meddelande för att ge ett kommando",
+        "english": "or send a DM to give a command"
     },
     "HELP_FORMAT_TITLE": {
         "swedish": "Format",
         "english": "Format"
     },
     "HELP_FORMAT_FIELD": {
-        "swedish": "!teamo <antal spelare per lag> <starttid (hh:mm)> <spel>",
-        "english": "!teamo <number of players per team> <time to start (hh:mm)> <game>"
+        "swedish": "<antal spelare per lag> <starttid (hh:mm)> <spel>",
+        "english": "<number of players per team> <time to start (hh:mm)> <game>"
     },
     "HELP_EXAMPLE_TITLE": {
         "swedish": "Exempel",
@@ -70,9 +78,13 @@ const LanguageObject: LanguageDict = {
         "swedish": "Uppdateras var 15:e sekund. Senast uppdaterad",
         "english": "Updated every 15th second. Last update"
     },
-    "ARGS_PLAY_INVALID_FORMAT": {
-        "swedish": "Fel format på kommandot. Rätt format: \"!teamo <spelare> <hh>:<mm> <spel>\". Skriv **!teamo help** för mer info.",
-        "english": "Invalid format. The command should be on the form: \"!teamo <players> <hh>:<mm> <game[]>\". Type **!teamo help** for more info."
+    "ARGS_PLAY_INVALID_FORMAT_1": {
+        "swedish": "Fel format på kommandot. Rätt format: \"<spelare> <hh>:<mm> <spel>\". Se",
+        "english": "Invalid format. The command should be on the form: \"<players> <hh>:<mm> <game>\". See"
+    },
+    "ARGS_PLAY_INVALID_FORMAT_2": {
+        "swedish": "för mer info.",
+        "english": "for more info."
     },
     "DELETION_TITLE": {
         "swedish": "MEDDELANDET TAS BORT",
@@ -95,8 +107,24 @@ const LanguageObject: LanguageDict = {
         "english": "tomorrow"
     },
     "WRONG_CHANNEL": {
-        "swedish": "Teamo kan bara användas från",
-        "english": "Teamo can only be used from"
+        "swedish": "kan bara användas från",
+        "english": "can only be used from"
+    },
+    "NEW_MESSAGE_CREATED_DM": {
+        "swedish": "Meddelande skapat i",
+        "english": "Message created in"
+    },
+    "IN_PRIVATE_MESSAGE": {
+        "swedish": "i privat meddelande",
+        "english": "in direct message"
+    },
+    "ONLY_MESSAGE_TO_TEAMO_1": {
+        "swedish": "Skicka bara kommandon till",
+        "english": "Only post commands to"
+    },
+    "ONLY_MESSAGE_TO_TEAMO_2": {
+        "swedish": "i den här kananelen",
+        "english": "in this channel"
     }
 }
 
@@ -104,5 +132,5 @@ export default function getLanguageResource(desc: string) {
     if (desc in LanguageObject)
         return LanguageObject[desc][config.language];
     else
-        throw Error("Invalid language description");
+        return "INVALID LOCALIZATION STRING";
 }

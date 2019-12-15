@@ -4,6 +4,7 @@ import getLanguageResource from './LanguageResource';
 import { getAdjustedDate } from './TimeUtils';
 import { TeamoCommandWaiting } from './TeamoCommandWaiting';
 import { handleHelpCommand } from './HelpCommand';
+import { handleWelcomeCommand } from './WelcomeCommand';
 
 const client = new Discord.Client();
 
@@ -80,7 +81,7 @@ async function handleCommand(msg: Discord.Message | Discord.PartialMessage) {
         await handleHelpCommand(msg.channel);
     }
     else if (args.toLowerCase() === "welcome") {
-        await handleHelpCommand(msg.channel, true);
+        await handleWelcomeCommand(msg.channel as Discord.TextChannel);
     }
     else {
         const mainCommandArgs = {

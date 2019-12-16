@@ -54,10 +54,26 @@ async function handleMainCommand(args: MainCommandArgs): Promise<boolean> {
             sentMsg.delete({ timeout: 10000 });
         return false;
     }
+
     const maxPlayers = parseInt(argsArray[1]);
+    if (maxPlayers > 10 || maxPlayers < 2) {
+        (await args.channel.send(getLanguageResource("INVALID_MAX_PLAYERS"))).delete({timeout: 10000}).catch();
+        return false;
+    }
+
     const hh = parseInt(argsArray[2]);
     const mm = parseInt(argsArray[3]);
+    if (hh === NaN || mm === NaN || hh < 0 || hh > 23 || mm < 0 || mm > 59) {
+        (await args.channel.send(getLanguageResource("INVALID_TIME"))).delete({timeout: 10000}).catch();
+        return false;
+    }
+
     const game = argsArray[4];
+    if (game.length > 40) {
+        (await args.channel.send(getLanguageResource("INVALID_GAME_LENGTH"))).delete({timeout: 10000}).catch();
+        return false;
+    }
+
     const date = getAdjustedDate(hh, mm);
 
     const teamoWaiting = new TeamoCommandWaiting(maxPlayers, date, game, args.author, client);

@@ -10,9 +10,11 @@ jobs:
         node-version: [12.x]
     steps:
       - uses: actions/checkout@v1
-      - uses: webfactory/ssh-agent@v0.1.1
-        with:
-          ssh-private-key: ${{ secrets.VULTR_SSH_KEY }}
+      # - uses: webfactory/ssh-agent@v0.1.1
+      #   with:
+      #     ssh-private-key: ${{ secrets.VULTR_SSH_KEY }}
+      - name: Adding SSH key
+        run: ssh-add - <<< "${VULTR_SSH_KEY}"
       - name: executing remote ssh commands using password
         run: ssh root@108.61.198.106 "echo hello"
       - uses: rlespinasse/github-slug-action@1.1.0

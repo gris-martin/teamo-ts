@@ -1,0 +1,77 @@
+name: Build and deploy Teamo
+
+on: [pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [12.x]
+    steps:
+      - uses: actions/checkout@v1
+      - name: executing remote ssh commands using ssh key
+        uses: appleboy/ssh-action@master
+        with:
+          host: '108.61.198.106'
+          username: root
+          key: ${{ secrets.VULTR_SSH_KEY }}
+          port: 22
+          script: whoami
+      # - uses: webfactory/ssh-agent@v0.1.1
+      #   with:
+      #     ssh-private-key: ${{ secrets.VULTR_SSH_KEY }}
+      # - name: Adding SSH key
+      #   run: |
+      #     eval `ssh-agent -s`
+      #     ssh-add - <<< "${VULTR_SSH_KEY}"
+      # - name: executing remote ssh commands using password
+      #   run: ssh root@108.61.198.106 "echo hello"
+      # - uses: rlespinasse/github-slug-action@1.1.0
+      # - name: Set tag environment variable
+      #   if: startsWith(github.ref, 'refs/tags')
+      #   run: echo "::set-env name=DOCKER_NAME::deploy"
+      # - name: Set master branch environment variable
+      #   if: github.ref == 'refs/heads/master'
+      #   run: echo "::set-env name=DOCKER_NAME::master"
+      # - name: Set branch environment variable
+      #   if: github.ref != 'refs/heads/master' && !startsWith(github.ref, 'refs/tags')
+      #   run: echo "::set-env name=DOCKER_NAME::branch"
+      # - name: Deploy Teamo
+      #   run: bash deploy.sh
+
+    # - name: Use Node.js ${{ matrix.node-version }}
+    #   uses: actions/setup-node@v1
+    #   with:
+    #     node-version: ${{ matrix.node-version }}
+    # - name: npm install, build, and test
+    #   run: |
+    #     npm install
+    #     npm run build --if-present
+        # npm test
+    # - name: Dump GitHub context
+    #   run: echo "${{ toJson(github) }}"
+    # - name: Dump job context
+    #   run: echo "${{ toJson(job) }}"
+    # - name: Dump steps context
+    #   run: echo "${{ toJson(steps) }}"
+    # - name: Dump runner context
+    #   run: echo "${{ toJson(runner) }}"
+    # - name: Dump strategy context
+    #   run: echo "${{ toJson(strategy) }}"
+    # - name: Dump matrix context
+    #   run: echo "${{ toJson(matrix) }}"
+    # - uses: rlespinasse/github-slug-action@1.1.0
+    # - name: Print ref
+    #   if: startsWith(github.ref, 'refs/tags')
+    #   run: echo I am a tag with slug ${{env.GITHUB_REF_SLUG}}
+    # - name: Print branch
+    #   if: startsWith(github.ref, 'refs/heads') && endsWith(github.ref, 'feature/github-actions')
+    #   run: echo I am a branch with slug ${{env.GITHUB_REF_SLUG}}
+    # - name: deploy
+    #   run: |
+    #     openssl aes-256-cbc -K $encrypted_ac2413816663_key -iv $encrypted_ac2413816663_iv -in deploy_rsa.enc -out /tmp/deploy_rsa -d
+    #     eval "$(ssh-agent -s)"
+    #     chmod 600 /tmp/deploy_rsa
+    #     ssh-add /tmp/deploy_rsa
+    #     bash deploy.sh

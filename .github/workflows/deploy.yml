@@ -14,7 +14,9 @@ jobs:
       #   with:
       #     ssh-private-key: ${{ secrets.VULTR_SSH_KEY }}
       - name: Adding SSH key
-        run: ssh-add - <<< "${VULTR_SSH_KEY}"
+        run: |
+          eval `ssh-agent -s`
+          ssh-add - <<< "${VULTR_SSH_KEY}"
       - name: executing remote ssh commands using password
         run: ssh root@108.61.198.106 "echo hello"
       - uses: rlespinasse/github-slug-action@1.1.0

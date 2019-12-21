@@ -19,6 +19,8 @@ jobs:
         npm install
         npm run build --if-present
         # npm test
+    - name: Print ref
+      run: echo ${{github.ref}}
     # - name: deploy
     #   run: |
     #     openssl aes-256-cbc -K $encrypted_ac2413816663_key -iv $encrypted_ac2413816663_iv -in deploy_rsa.enc -out /tmp/deploy_rsa -d

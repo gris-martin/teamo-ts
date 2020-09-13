@@ -1,3 +1,6 @@
+## teamo-ts is deprecated!
+This implementation of Teamo has been superceded by https://github.com/hassanbot/teamo
+
 # teamo
 Teamo is a Discord bot for helping putting teams together when gaming. It can be useful if you're often more than the maximum number of players per team for the game you want to play.
 

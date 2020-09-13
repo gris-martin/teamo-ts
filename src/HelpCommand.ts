@@ -6,7 +6,7 @@ export function getHelpMessage(clientUser: Discord.User) {
     .setColor("PURPLE")
     .setTitle(`**${getLanguageResource("HELP_TITLE")}**`)
     .setDescription(
-        "\n[GitHub](https://github.com/hassanbot/teamo)\n\n" +
+        "\n[GitHub](https://github.com/hassanbot/teamo-ts)\n\n" +
         getLanguageResource("HELP_DESCRIPTION_1") + "\n\n" + 
         `${getLanguageResource("HELP_DESCRIPTION_2")} (${clientUser}) ${getLanguageResource("HELP_DESCRIPTION_3")}.`
     )
